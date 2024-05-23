@@ -3,7 +3,9 @@ import random
 from typing import Union
 from fastapi import APIRouter
 from pydantic import BaseModel
-from redis import Redis
+
+from models import ResponseModel
+from utils import create_redis_client, create_response
 
 router = APIRouter()
 
@@ -18,22 +20,10 @@ class Resp(BaseModel):
     is_chat_beginer: bool  # 第一条消息
 
 
-class BaseResp(BaseModel):
-    msg: str
-    code: int
-    data: Union[None | Resp]
-
-
-@router.post("", response_model=BaseResp)
+@router.post("", response_model=ResponseModel)
 async def handler(req: Req):
 
-    rdc = Redis(
-        host="localhost",
-        port=6379,
-        password="gooDluck4u",
-        db=0,
-        decode_responses=True,  # 自动解码响应
-    )
+    rdc = create_redis_client()
 
     # 生成 1～100的随机数，来模拟匹配概率
     chat_with_human = True
@@ -74,7 +64,7 @@ async def handler(req: Req):
                 rdc.lrem("matchlist", 0, req.user_id)
                 rdc.hdel("matchhash", req.user_id)
                 room_id = ""
-                return BaseResp(msg="timeout", code=111, data=None)
+                return create_response(code=111, msg="match timeout, please try again")
             pass
     else:
         # 为该用户匹配AI
@@ -86,9 +76,7 @@ async def handler(req: Req):
     if room_id.startswith(req.user_id):
         is_chat_beginer = True
 
-    rsp = BaseResp(
-        msg="ok",
-        code=0,
+    rsp = create_response(
         data=Resp(
             user_id=req.user_id, room_id=room_id, is_chat_beginer=is_chat_beginer
         ),
@@ -97,5 +85,5 @@ async def handler(req: Req):
     # 创建房间
     # id = rdc.incr('roomcounter')
     # rdc.set(  'chatroom:' + room_id + str(id) , room_id)
-    rdc.set(  'chatroom:' + room_id , room_id)
+    rdc.set("chatroom:" + room_id, room_id)
     return rsp

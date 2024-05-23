@@ -2,6 +2,9 @@ from typing import List
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from models import ResponseModel
+
+
 router = APIRouter()
 
 
@@ -23,7 +26,7 @@ class Resp(BaseModel):
     msgs: List[Msg]
 
 
-@router.post("", response_model=Resp)
+@router.post("", response_model=ResponseModel)
 async def handler(req: Req):
     rsp = Resp(
         user_id=req.user_id, room_id="xxxxx", msgs=[Msg(msg="hello", id="1", user="A")]

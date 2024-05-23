@@ -1,8 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
+from exceptions import general_exception_handler, http_exception_handler
 from routers import startChat, sendChatMsg, queryChat, finishChat
 
 app = FastAPI()
+
+# 添加全局异常处理器
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
 
 
 app.include_router(startChat.router, prefix="/startChat", tags=["startChat"])

@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from models import ResponseModel
+
 router = APIRouter()
 
 
@@ -17,7 +19,7 @@ class Resp(BaseModel):
     rewards: float
 
 
-@router.post("", response_model=Resp)
+@router.post("", response_model=ResponseModel)
 async def handler(req: Req):
     rsp = Resp(user_id=req.user_id, room_id="xxxxx", is_win=True, rewards=999)
     return rsp
