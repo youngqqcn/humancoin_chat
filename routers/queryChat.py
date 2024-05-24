@@ -30,6 +30,7 @@ class Resp(BaseModel):
     is_my_turn: bool
     is_time_up: bool
     expire_time: int
+    remaining_sec: int
     msgs: List[Msg]
 
 
@@ -53,11 +54,12 @@ async def handler(req: Req):
     if expire_time is None:
         expire_time = 0  # int(time.time())
         time_up = True
-    elif expire_time <= int(time.time()):
+    elif int(expire_time) <= int(time.time()):
         time_up = True
 
     turn_user = rdc.hget("chatturnmutex", req.room_id)
     is_my_turn = True if turn_user is not None and turn_user == req.user_id else False
+    remaining_sec = max(0,  int(expire_time) - int(time.time()))
     rsp = Resp(
         user_id=req.user_id,
         room_id=req.room_id,
@@ -65,5 +67,6 @@ async def handler(req: Req):
         is_my_turn=is_my_turn,
         is_time_up=time_up,
         expire_time=expire_time,
+        remaining_sec= remaining_sec
     )
     return create_response(data=rsp)

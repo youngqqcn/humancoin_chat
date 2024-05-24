@@ -29,14 +29,14 @@ async def handler(req: Req):
     if expire_time is None:
         raise HTTPException(status_code=1001, detail="room not found")
 
-    # 防止重复判断
+    # 只能判断一次, 防止重复判断
     result = rdc.hget("chatroomresult:" + req.room_id, req.user_id)
     if result is not None:
         rsp = Resp(user_id=req.user_id, room_id=req.room_id, is_win=False, rewards=0)
         if result == "win":
             rsp.is_win = True
             rsp.rewards = 100
-        return
+        return create_response(data=rsp)
 
     # 获取该用户的对手
     room_members = rdc.lrange("chatroommembers:" + req.room_id, 0, -1)
