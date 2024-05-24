@@ -4,13 +4,15 @@ import time
 from typing import Union
 import uuid
 from fastapi import APIRouter
-from fastapi.logger import logger
+# from fastapi.logger import logger
 from pydantic import BaseModel
 
 from models import ResponseModel
-from utils import create_redis_client, create_response
+from utils import create_redis_client, create_response, create_logger
 
 router = APIRouter()
+
+log = create_logger()
 
 
 class Req(BaseModel):
@@ -79,16 +81,21 @@ async def handler(req: Req):
                 return create_response(code=111, msg="match timeout, please try again")
 
     assert len(room_users) == 2, "invalid room users"
-    logger.info('聊天室成员:{}'.format(room_users))
+    log.info('聊天室成员:{}'.format(room_users))
+
 
     # 将自己添加到聊天成员
     rdc.rpush("chatroommembers:" + room_id, req.user_id)
 
     # 决定谁先说话, 抢互斥锁
     is_chat_beginer = False
-    asyncio.sleep(random.randint(1, 50) / 1000)
-    if 1 == rdc.hsetnx("chatbeginnermutex", room_id, req.user_id):
+    await asyncio.sleep(random.randint(1, 50) / 1000)
+    if 1 == rdc.hsetnx("chatturnmutex", room_id, req.user_id):
         is_chat_beginer = True
+
+    # 设置游戏结束时间
+    expire_time = int(time.time()) + 2*60
+    rdc.set("chatroomexpire:"+ room_id, expire_time , ex=2*60)
 
     rsp = create_response(
         data=Resp(
