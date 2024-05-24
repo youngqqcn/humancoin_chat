@@ -5,9 +5,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from models import ResponseModel
-from utils import create_redis_client, create_response, create_logger
+from utils import create_redis_client, create_response, logger
 
-log = create_logger()
 
 
 router = APIRouter()
@@ -38,7 +37,8 @@ class Resp(BaseModel):
 async def handler(req: Req):
 
     rdc = create_redis_client()
-    log.info("==============")
+    logger.info("==============")
+    logger.info("xxx")
 
     # 查询消息记录
     msgs = rdc.zrange("chatchannel:" + req.room_id, 0, -1, desc=True)
@@ -52,6 +52,8 @@ async def handler(req: Req):
     time_up = False
     if expire_time is None:
         expire_time = 0  # int(time.time())
+        time_up = True
+    elif expire_time <= int(time.time()):
         time_up = True
 
     turn_user = rdc.hget("chatturnmutex", req.room_id)

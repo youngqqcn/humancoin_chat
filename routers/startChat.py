@@ -8,11 +8,10 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from models import ResponseModel
-from utils import create_redis_client, create_response, create_logger
+from utils import create_redis_client, create_response, logger
 
 router = APIRouter()
 
-log = create_logger()
 
 
 class Req(BaseModel):
@@ -27,6 +26,8 @@ class Resp(BaseModel):
 
 @router.post("", response_model=ResponseModel)
 async def handler(req: Req):
+
+    # TODO: 不能匹配自己
 
     rdc = create_redis_client()
     random.seed(int(time.time() *10**6))
@@ -81,7 +82,7 @@ async def handler(req: Req):
                 return create_response(code=111, msg="match timeout, please try again")
 
     assert len(room_users) == 2, "invalid room users"
-    log.info('聊天室成员:{}'.format(room_users))
+    # log.info('聊天室成员:{}'.format(room_users))
 
 
     # 将自己添加到聊天成员
@@ -95,7 +96,7 @@ async def handler(req: Req):
 
     # 设置游戏结束时间
     expire_time = int(time.time()) + 2*60
-    rdc.set("chatroomexpire:"+ room_id, expire_time , ex=2*60)
+    rdc.set("chatroomexpire:"+ room_id, expire_time)
 
     rsp = create_response(
         data=Resp(

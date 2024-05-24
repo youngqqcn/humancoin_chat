@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from models import ResponseModel
-from utils import create_redis_client, create_response
+from utils import create_redis_client, create_response, logger
 
 router = APIRouter()
 
@@ -27,13 +27,23 @@ async def handler(req: Req):
 
     rdc = create_redis_client()
     # 检查房间是否存在
-    # TODO:是否过期,  在value中增加过期时间
-    if not rdc.exists("chatroom:" + req.room_id):
-        raise HTTPException(status_code=404, detail="room not found")
+    expire_time = rdc.get("chatroomexpire:" + req.room_id)
+    if expire_time is None:
+        raise Exception(status_code=404, detail="room not found")
 
-    # TODO: 检查当前是否是该用户发言,
-    # 判断最后一条消息是否是
+    # 检查房间是否过期
+    if int(expire_time) <= int(time.time()):
+        raise Exception(status_code=401, detail="chat finished")
 
+    # 检查当前是否轮到该用户发言,
+    user_id = rdc.hget("chatturnmutex", req.room_id)
+    if user_id is None:
+        user_id = "x"
+    if user_id != req.user_id:
+        logger.error(f'房间: {req.room_id}, 用户不是当前说话人: {req.user_id}, 说话人:{user_id}')
+        raise Exception("1002", "not turn")
+
+    # 将消息插入
     ts = int(time.time() * 1000)
     msg_id = str(uuid.uuid4())
     msg = {
@@ -43,6 +53,19 @@ async def handler(req: Req):
         "msg_id": msg_id,
     }
     rdc.zadd("chatchannel:" + req.room_id, {json.dumps(msg): ts})
+
+
+    # 获取该用户的对手
+    room_members = rdc.lrange("chatroommembers:" + req.room_id, 0, -1)
+    opponent_user_id =  room_members[0] if room_members[0] == req.user_id else room_members[1]
+
+    # 切换当前发言人
+    rdc.hset("chatturnmutex", req.room_id, opponent_user_id)
+
+    if str(opponent_user_id).startswith('bot'):
+        # 如果是用户的对手是AI, 则插入一条消息到队列, AI机器人消费, 并回复
+        rdc.rpush("chataimsgqueue", req.room_id)
+        pass
 
     rsp = Resp(user_id=req.user_id, room_id=req.room_id, msg_id=msg_id)
     return create_response(data=rsp)
