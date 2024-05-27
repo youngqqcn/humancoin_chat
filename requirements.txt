@@ -6,3 +6,5 @@ requests
 openai
 dashscope
 zhipuai
+
+pymysql

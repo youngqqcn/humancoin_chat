@@ -1,3 +1,5 @@
+import json
+import time
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -58,6 +60,18 @@ async def handler(req: Req):
         "chatroomresult:" + req.room_id, req.user_id, "win" if rsp.is_win else "lose"
     )
 
-    # TODO: 发送消息，增加积分
+    # 发送消息，增加积分, 输的不得积分
+    if rsp.is_win:
+        rdc.rpush(
+            "chatpointqueue",
+            json.dumps(
+                {
+                    "user_id": req.user_id,
+                    "room_id": req.room_id,
+                    "points": 100,
+                    "timestamp": int(time.time()),
+                }
+            ),
+        )
 
     return create_response(data=rsp)
