@@ -56,6 +56,8 @@ async def handler(req: Req):
             room_users = [active_user_id, req.user_id]
 
             room_id = rdc.hget("matchroomids", active_user_id)
+            # 将自己添加到聊天成员
+            rdc.rpush("chatroommembers:" + room_id, *[active_user_id, req.user_id])
         else:  # 没有等待用户, 自己加入等待
             rdc.hset("matchhash", req.user_id, "null")
             rdc.rpush("matchlist", req.user_id)
@@ -85,8 +87,7 @@ async def handler(req: Req):
     # log.info('聊天室成员:{}'.format(room_users))
 
 
-    # 将自己添加到聊天成员
-    rdc.rpush("chatroommembers:" + room_id, req.user_id)
+
 
     # 决定谁先说话, 抢互斥锁
     is_chat_beginer = False
@@ -97,6 +98,12 @@ async def handler(req: Req):
     # 设置游戏结束时间
     expire_time = int(time.time()) + 2*60
     rdc.set("chatroomexpire:"+ room_id, expire_time)
+
+    # 如果是AI开始发言，则需要发送消息通知AI
+    first_chat_user = rdc.hget("chatturnmutex", room_id)
+    if first_chat_user is not None:
+        if first_chat_user.startswith('bot'):
+            rdc.rpush("chataimsgqueue", req.room_id)
 
     rsp = create_response(
         data=Resp(
