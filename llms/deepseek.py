@@ -4,7 +4,7 @@ from openai import OpenAI
 import asyncio
 
 # from prompts.prompt1 import system_prompt
-from prompts.prompt2 import system_prompt
+from .prompts.prompt2 import system_prompt
 
 
 async def ai_chat(messages: List[dict]) -> str:

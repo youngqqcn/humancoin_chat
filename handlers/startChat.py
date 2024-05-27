@@ -95,7 +95,7 @@ async def handler(req: Req):
         is_chat_beginer = True
 
     # 设置游戏结束时间
-    expire_time = int(time.time()) + 2 * 60
+    expire_time = int(time.time()) + 10 * 60
     rdc.set("chatroomexpire:" + room_id, expire_time)
 
     # 如果是AI开始发言，则需要发送消息通知AI

@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     # 开始匹配
     rsp = requests.post(
-        "http://127.0.0.1:8000/startChat", json={"user_id": user_id}, timeout=30
+        "http://192.168.110.207:8000/startChat", json={"user_id": user_id}, timeout=30
     )
     if rsp is None or rsp.status_code != 200:
         print("匹配失败:{}".format(rsp.text))
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     while True:
         while True:
             rsp = requests.post(
-                "http://127.0.0.1:8000/queryChat",
+                "http://192.168.110.207:8000/queryChat",
                 json={
                     "user_id": user_id,
                     "room_id": room_id,
@@ -37,6 +37,7 @@ if __name__ == "__main__":
                 break
 
             time.sleep(1)
+            print("等待对方回复...")
             continue
 
         user_input = input("You 😊: ")
@@ -47,7 +48,7 @@ if __name__ == "__main__":
         # print(user_input)
 
         rsp = requests.post(
-            "http://127.0.0.1:8000/sendChatMsg",
+            "http://192.168.110.207:8000/sendChatMsg",
             json={
                 "user_id": user_id,
                 "msg":  user_input.strip(),
