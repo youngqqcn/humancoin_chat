@@ -21,16 +21,18 @@ class Req(BaseModel):
 class Resp(BaseModel):
     user_id: str
     room_id: str
-    is_chat_beginer: bool  # 第一条消息
+    is_chat_beginner: bool  # 第一条消息
 
 
 @router.post("", response_model=ResponseModel)
 async def handler(req: Req):
 
-    # TODO: 不能匹配自己
-
-    rdc = create_redis_client()
     random.seed(int(time.time() * 10**6))
+    rdc = create_redis_client()
+
+    # 如果已经开始排队匹配，不能重复排队
+    if rdc.hget("matchroomids", req.user_id) is not None:
+        return create_response(code=111, msg="already in queue")
 
     # 生成 1～100的随机数，来模拟匹配概率
     chat_with_human = False
@@ -51,7 +53,11 @@ async def handler(req: Req):
     else:
         # 为该用户匹配人类
         active_user_id = rdc.lpop("matchlist")
+        if active_user_id is not None and active_user_id == req.user_id:
+            active_user_id
+
         if active_user_id is not None:  # 有用户等待, 直接匹配
+
             rdc.hset("matchhash", active_user_id, req.user_id)
 
             # 返回匹配id号
@@ -60,6 +66,7 @@ async def handler(req: Req):
             room_id = rdc.hget("matchroomids", active_user_id)
             # 将自己添加到聊天成员
             rdc.rpush("chatroommembers:" + room_id, *[active_user_id, req.user_id])
+
         else:  # 没有等待用户, 自己加入等待
             rdc.hset("matchhash", req.user_id, "null")
             rdc.rpush("matchlist", req.user_id)
@@ -79,34 +86,37 @@ async def handler(req: Req):
 
             if match_timeout:
                 # 匹配超时, 删除待匹配信息
-                rdc.lrem("matchlist", 0, req.user_id)
+                room_id = ""
                 rdc.hdel("matchhash", req.user_id)
                 rdc.hdel("matchroomids", req.user_id)
-                room_id = ""
+                rdc.lrem("matchlist", 0, req.user_id)
                 return create_response(code=111, msg="match timeout, please try again")
 
-    assert len(room_users) == 2, "invalid room users"
-    # log.info('聊天室成员:{}'.format(room_users))
+        assert len(room_users) == 2, "invalid room users"
+        # log.info('聊天室成员:{}'.format(room_users))
 
-    # 决定谁先说话, 抢互斥锁
-    is_chat_beginer = False
-    await asyncio.sleep(random.randint(1, 50) / 1000)
-    if 1 == rdc.hsetnx("chatturnmutex", room_id, req.user_id):
-        is_chat_beginer = True
+    assert room_id != "", "empty room_id"
 
-    # 设置游戏结束时间
-    expire_time = int(time.time()) + 10 * 60
-    rdc.set("chatroomexpire:" + room_id, expire_time)
+    # 抢第一发言权
+    is_chat_beginner = False
+    rdc.hsetnx("chatturnmutex", room_id, random.choices(room_users)[0])
+
+    first_chat_user_id = rdc.hget("chatturnmutex", room_id)
+    assert first_chat_user_id is not None, "invalid room"
+    if first_chat_user_id == req.user_id:
+        is_chat_beginner = True
 
     # 如果是AI开始发言，则需要发送消息通知AI
-    first_chat_user = rdc.hget("chatturnmutex", room_id)
-    if first_chat_user is not None:
-        if first_chat_user.startswith("bot"):
-            rdc.rpush("chataimsgqueue", req.room_id)
+    if first_chat_user_id.startswith("bot"):
+        rdc.rpush("chataimsgqueue", room_id)
+
+    # 设置游戏结束时间
+    expire_time = int(time.time()) + 2 * 60
+    rdc.set("chatroomexpire:" + room_id, expire_time)
 
     rsp = create_response(
         data=Resp(
-            user_id=req.user_id, room_id=room_id, is_chat_beginer=is_chat_beginer
+            user_id=req.user_id, room_id=room_id, is_chat_beginner=is_chat_beginner
         ),
     )
 

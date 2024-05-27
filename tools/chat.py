@@ -1,11 +1,13 @@
 import time
 import requests
 
+host = 'http://127.0.0.1:8000'
+
 def finish_chat(user_id: str, room_id: str):
     judge = input("聊天结束,对方是人类吗? 请输入  yes 或者 no: ")
     assert judge.strip() in ["yes", "no"]
     finish_rsp = requests.post(
-        "http://192.168.110.207:8000/finishChat",
+        f"{host}/finishChat",
         json={
             "user_id": user_id,
             "room_id": room_id,
@@ -23,7 +25,7 @@ def finish_chat(user_id: str, room_id: str):
 
 def query_chat(user_id: str, room_id: str):
     rsp = requests.post(
-        "http://192.168.110.207:8000/queryChat",
+        f"{host}/queryChat",
         json={
             "user_id": user_id,
             "room_id": room_id,
@@ -37,7 +39,7 @@ def query_chat(user_id: str, room_id: str):
 
 def send_chat(user_id: str, room_id: str, user_input: str):
     rsp = requests.post(
-        "http://192.168.110.207:8000/sendChatMsg",
+        f"{host}/sendChatMsg",
         json={
             "user_id": user_id,
             "msg": user_input.strip(),
@@ -52,7 +54,7 @@ def send_chat(user_id: str, room_id: str, user_input: str):
 def start_chat(user_id: str):
     # 开始匹配
     rsp = requests.post(
-        "http://192.168.110.207:8000/startChat", json={"user_id": user_id}, timeout=30
+        f"{host}/startChat", json={"user_id": user_id}, timeout=30
     )
     if rsp is None or rsp.status_code != 200:
         print("匹配失败:{}".format(rsp.text))
