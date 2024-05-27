@@ -1,5 +1,5 @@
 
 dev:
-	fastapi dev main.py
+	fastapi dev api.py
 
 

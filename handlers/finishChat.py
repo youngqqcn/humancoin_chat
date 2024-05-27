@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from models import ResponseModel
-from utils import create_redis_client, create_response
+from models.models import ResponseModel
+from utils.utils import create_redis_client, create_response
 
 router = APIRouter()
 

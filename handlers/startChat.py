@@ -4,14 +4,14 @@ import time
 from typing import Union
 import uuid
 from fastapi import APIRouter
+
 # from fastapi.logger import logger
 from pydantic import BaseModel
 
-from models import ResponseModel
-from utils import create_redis_client, create_response, logger
+from models.models import ResponseModel
+from utils.utils import create_redis_client, create_response, logger
 
 router = APIRouter()
-
 
 
 class Req(BaseModel):
@@ -30,21 +30,23 @@ async def handler(req: Req):
     # TODO: 不能匹配自己
 
     rdc = create_redis_client()
-    random.seed(int(time.time() *10**6))
+    random.seed(int(time.time() * 10**6))
 
     # 生成 1～100的随机数，来模拟匹配概率
-    chat_with_human = True
-    if random.randint(1, 100) <= 5:
-        chat_with_human = True
+    chat_with_human = False
+    # if random.randint(1, 100) <= 5:
+    #     chat_with_human = True
 
     # 匹配算法参考 https://blog.csdn.net/qq_38403590/article/details/118420483
 
     # 要确保匹配双方的最后的room_id是一样的
-    room_id = "" #
+    room_id = ""  #
     room_users = []
     if not chat_with_human:
         # 为该用户匹配AI
         room_users = [req.user_id, "bot0001"]
+        room_id = str(uuid.uuid4())
+        rdc.rpush("chatroommembers:" + room_id, *room_users)
         pass
     else:
         # 为该用户匹配人类
@@ -61,7 +63,7 @@ async def handler(req: Req):
         else:  # 没有等待用户, 自己加入等待
             rdc.hset("matchhash", req.user_id, "null")
             rdc.rpush("matchlist", req.user_id)
-            rdc.hset("matchroomids", req.user_id , str(uuid.uuid4()))
+            rdc.hset("matchroomids", req.user_id, str(uuid.uuid4()))
 
             # 开始等待匹配 15s
             match_timeout = True
@@ -86,9 +88,6 @@ async def handler(req: Req):
     assert len(room_users) == 2, "invalid room users"
     # log.info('聊天室成员:{}'.format(room_users))
 
-
-
-
     # 决定谁先说话, 抢互斥锁
     is_chat_beginer = False
     await asyncio.sleep(random.randint(1, 50) / 1000)
@@ -96,13 +95,13 @@ async def handler(req: Req):
         is_chat_beginer = True
 
     # 设置游戏结束时间
-    expire_time = int(time.time()) + 2*60
-    rdc.set("chatroomexpire:"+ room_id, expire_time)
+    expire_time = int(time.time()) + 2 * 60
+    rdc.set("chatroomexpire:" + room_id, expire_time)
 
     # 如果是AI开始发言，则需要发送消息通知AI
     first_chat_user = rdc.hget("chatturnmutex", room_id)
     if first_chat_user is not None:
-        if first_chat_user.startswith('bot'):
+        if first_chat_user.startswith("bot"):
             rdc.rpush("chataimsgqueue", req.room_id)
 
     rsp = create_response(

@@ -2,3 +2,7 @@ fastapi
 pydantic
 redis
 requests
+
+openai
+dashscope
+zhipuai

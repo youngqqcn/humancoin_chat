@@ -1,5 +1,5 @@
 from redis import Redis
-from models import ResponseModel
+from models.models import ResponseModel
 import logging
 
 def create_response(data: any = None, msg: str = "ok", code: int = 0):
