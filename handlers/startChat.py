@@ -36,8 +36,12 @@ async def handler(req: Req):
 
     # 生成 1～100的随机数，来模拟匹配概率
     chat_with_human = False
-    # if random.randint(1, 100) <= 5:
-    #     chat_with_human = True
+    if random.randint(1, 100) <= 50:
+        chat_with_human = True
+        # 如果 没人排队
+        # ml = rdc.lrange("matchlist")
+        # if ml is None or len(ml) == 0:
+            # chat_with_human = False
 
     # 匹配算法参考 https://blog.csdn.net/qq_38403590/article/details/118420483
 
@@ -74,7 +78,7 @@ async def handler(req: Req):
 
             # 开始等待匹配 15s
             match_timeout = True
-            for i in range(0, 5):
+            for i in range(0, 15):
                 await asyncio.sleep(1)
                 other_user_id = rdc.hget("matchhash", req.user_id)
                 if other_user_id != "null":

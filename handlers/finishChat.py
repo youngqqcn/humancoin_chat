@@ -42,7 +42,7 @@ async def handler(req: Req):
     room_members = rdc.lrange("chatroommembers:" + req.room_id, 0, -1)
     assert len(room_members) == 2, "invalid room"
     opponent_user_id = (
-        room_members[0] if room_members[0] == req.user_id else room_members[1]
+        room_members[0] if room_members[0] != req.user_id else room_members[1]
     )
 
     # 判定胜负, 目前的规则允许双方都胜利， 而不是用户双方的博弈, 而是和系统博弈

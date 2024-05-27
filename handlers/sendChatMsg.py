@@ -32,10 +32,11 @@ async def handler(req: Req):
         logger.info(f"房间未找到:{req.room_id}")
         raise HTTPException(status_code=404, detail="room not found")
 
-    # 检查房间是否过期
+    # 检查房间是否过期, 过期了就不再插入redis，直接返回即可
     if int(expire_time) <= int(time.time()):
-        logger.error(f"房间:{req.room_id} 聊天已结束, 不能再发送消息")
-        raise HTTPException(status_code=401, detail="chat finished")
+        logger.warning(f"房间:{req.room_id} 聊天已结束, 不能再发送消息")
+        rsp = Resp(user_id=req.user_id, room_id=req.room_id, msg_id=str(uuid.uuid4()))
+        return create_response(data=rsp)
 
     # 检查当前是否轮到该用户发言,
     user_id = rdc.hget("chatturnmutex", req.room_id)
