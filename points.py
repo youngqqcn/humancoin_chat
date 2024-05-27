@@ -5,26 +5,36 @@ import pymysql
 
 from utils.utils import create_redis_client
 from datetime import datetime
+import argparse
 
 
-def task():
+class MySqlConfig:
+    def __init__(self, host, port, user, password, db):
+        self.host = host
+        self.port = port
+        self.user = user
+        self.password = password
+        self.db = db
+
+
+def task(config: MySqlConfig):
 
     while True:
         try:
-            with pymysql.connect(
-                host="localhost",
-                port=3306,
-                user="root",
-                password="ae633jmFLiAGqigSO41",
-                db="humancoin",
-            ) as cnx:
-                rdc = create_redis_client()
-                raw_msg = rdc.lpop("chatpointqueue")
-                if raw_msg is None:
-                    print("暂无消息处理")
-                    time.sleep(1)
-                    continue
+            rdc = create_redis_client()
+            raw_msg = rdc.lpop("chatpointqueue")
+            if raw_msg is None:
+                print("暂无消息处理")
+                time.sleep(1)
+                continue
 
+            with pymysql.connect(
+                host=config.host,
+                port=config.port,
+                user=config.user,
+                password=config.password,
+                db=config.db,
+            ) as cnx:
                 with cnx.cursor() as cursor:
                     msg = json.loads(raw_msg)
                     print("消息: {}".format(msg))
@@ -70,7 +80,28 @@ def task():
 
 
 def main():
-    task()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--env", type=str, help="test or pro")
+    args = parser.parse_args()
+
+    if args.env == "test":
+        mysql_config = MySqlConfig(
+            host="localhost",
+            port=3306,
+            user="root",
+            password="ae633jmFLiAGqigSO41",
+            db="humancoin",
+        )
+    elif args.env == "pro":
+        mysql_config = MySqlConfig(
+            host="fansland-pro-mysql.cluster-cdm88s6ekcfi.ap-southeast-1.rds.amazonaws.com",
+            port=3306,
+            user="admin",
+            password="ae633jmFLiAGqigSO42",
+            db="humancoin",
+        )
+    task(mysql_config)
+
 
 if __name__ == "__main__":
     main()
