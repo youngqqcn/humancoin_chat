@@ -8,3 +8,4 @@ dashscope
 zhipuai
 
 pymysql
+jose
