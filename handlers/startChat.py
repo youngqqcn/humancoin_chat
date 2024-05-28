@@ -36,7 +36,7 @@ async def handler(req: Req):
 
     # 生成 1～100的随机数，来模拟匹配概率
     chat_with_human = False
-    if random.randint(1, 100) <= 50:
+    if random.randint(1, 100) <= 10:
         chat_with_human = True
         # 如果 没人排队
         # ml = rdc.lrange("matchlist")

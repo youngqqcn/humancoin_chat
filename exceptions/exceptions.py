@@ -4,6 +4,7 @@ from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERRO
 from models.models import ResponseModel
 
 async def http_exception_handler(request: Request, exc: HTTPException):
+    print("xxxxxxxxxxxxxxxxxxxx: {}".format(exc))
     response = ResponseModel(
         code=exc.status_code,
         msg=exc.detail,
@@ -12,6 +13,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(status_code=exc.status_code, content=response.dict())
 
 async def general_exception_handler(request: Request, exc: Exception):
+    print("==============================")
     response = ResponseModel(
         code=HTTP_500_INTERNAL_SERVER_ERROR,
         msg="Internal Server Error",

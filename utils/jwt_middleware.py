@@ -3,43 +3,33 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import time
 import jwt
 
-JWT_SECRET = ''
-JWT_ALGORITHM = ''
+# const TOKEN_SECRET: &str = "GXFC@Fansland.io@2024";
+JWT_SECRET = 'GXFC@Fansland.io@2024'
+JWT_ALGORITHM = 'HS256'
 
 
-
-def decode_jwt(token: str) -> dict:
+def verify_jwt(jwtoken: str, user_id: str) -> bool:
     try:
-        decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        return decoded_token if decoded_token["expires"] >= time.time() else None
-    except:
-        return {}
+        claims = jwt.decode(jwtoken, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        print(claims)
+        return claims['user_id'] == user_id
+    except Exception as e:
+        print('error: {}'.format(e))
+        return False
 
-class JWTBearer(HTTPBearer):
-    def __init__(self, auto_error: bool = True):
-        super(JWTBearer, self).__init__(auto_error=auto_error)
+def main():
+    # const JWT_TOKEN: &str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2FkZHJlc3MiOiIweGNkOWNmZjZhOTVkNmJiN2Q4YjhiNTBlYzg5NjUxM2U5YTJjZjY1NGEiLCJleHAiOjE3MDYwODYwNzh9.kLS1tb6wz7maiF7UgFFhlArtIu0zALqroTiUYwHFFzc";
 
-    async def __call__(self, request: Request):
-        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+    jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiMTIzNDU2IiwiZXhwIjoxNzE2OTUwMTI2LCJ1c2VyX3R5cGUiOjJ9.3sgPoiOaEse2DQ2z1rxdOI_ymY8B4chjJAW4lV0j3Ik"
 
-        #TODO: 解析token
-        if credentials:
-            if not credentials.scheme == "Bearer":
-                raise HTTPException(status_code=403, detail="Invalid authentication scheme.")
-            if not self.verify_jwt(credentials.credentials):
-                raise HTTPException(status_code=403, detail="Invalid token or expired token.")
-            return credentials.credentials
-        else:
-            raise HTTPException(status_code=403, detail="Invalid authorization code.")
+    if verify_jwt(jwtoken=jwt_token):
+        print('ok')
+    else:
+        print('failed')
 
-    def verify_jwt(self, jwtoken: str) -> bool:
-        isTokenValid: bool = False
 
-        try:
-            payload = decode_jwt(jwtoken)
-        except:
-            payload = None
-        if payload:
-            isTokenValid = True
+    pass
 
-        return isTokenValid
+if __name__ == '__main__':
+    main()
+
