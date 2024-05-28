@@ -31,7 +31,7 @@ async def chat_handler(tid: int, room_id: str):
                 role = "assistant" if str(msg["user_id"]).startswith("bot") else "user"
                 history_msgs.append({"role": role, "content": msg["content"]})
 
-        rsp_text = await ai_chat(messages=history_msgs)
+        rsp_text = await ai_chat(messages=history_msgs, room_id=room_id)
         print("AI: {}".format(rsp_text))
 
         # 将AI回复的消息插入队列

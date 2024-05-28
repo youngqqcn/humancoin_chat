@@ -10,3 +10,7 @@ points-test:
 
 points-pro:
 	python3 points.py --env pro
+
+
+
+

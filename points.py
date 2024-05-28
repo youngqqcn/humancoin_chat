@@ -24,9 +24,10 @@ def task(config: MySqlConfig):
             rdc = create_redis_client()
             raw_msg = rdc.lpop("chatpointqueue")
             if raw_msg is None:
-                print("暂无消息处理")
+                # print("暂无消息处理")
                 time.sleep(1)
                 continue
+            print('消息:{}'.format(raw_msg))
 
             with pymysql.connect(
                 host=config.host,
@@ -73,6 +74,7 @@ def task(config: MySqlConfig):
                     """
                     cursor.execute(insert_sql_str)
                     cnx.commit()
+                    print('消息处理完成')
         except Exception as e:
             print("error: {}".format(e))
 
@@ -92,6 +94,7 @@ def main():
             password="ae633jmFLiAGqigSO41",
             db="humancoin",
         )
+        task(mysql_config)
     elif args.env == "pro":
         mysql_config = MySqlConfig(
             host="fansland-pro-mysql.cluster-cdm88s6ekcfi.ap-southeast-1.rds.amazonaws.com",
@@ -100,7 +103,9 @@ def main():
             password="ae633jmFLiAGqigSO42",
             db="humancoin",
         )
-    task(mysql_config)
+        task(mysql_config)
+    else:
+        raise "invalid env"
 
 
 if __name__ == "__main__":

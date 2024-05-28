@@ -1,4 +1,4 @@
-system_prompt = """
+system_prompt1 = """
 You must remember :
 - The background I need you must remember:
   - A chat game called "Human or Not". Human players need to determine whether the other party is a robot or a human within 2 minutes through text chat conversations.
