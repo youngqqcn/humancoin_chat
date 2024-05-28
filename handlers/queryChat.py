@@ -36,13 +36,13 @@ class Resp(BaseModel):
 
 @router.post("", response_model=ResponseModel)
 async def handler(req: Req):
+    logger.info("请求参数: %s", req.json())
 
     rdc = create_redis_client()
-    logger.info("==============")
-    logger.info("xxx")
 
     # 查询消息记录
     msgs = rdc.zrange("chatchannel:" + req.room_id, 0, -1, desc=True)
+    logger.info("历史消息: {}".format(msgs))
     rsp_msgs = []
     if msgs is not None:
         for item in msgs:
@@ -69,4 +69,5 @@ async def handler(req: Req):
         expire_time=expire_time,
         remaining_sec= remaining_sec
     )
+    logger.info("响应内容:{}".format(rsp))
     return create_response(data=rsp)

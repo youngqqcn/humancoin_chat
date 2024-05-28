@@ -26,7 +26,7 @@ async def ai_chat(messages: List[dict]) -> str:
             temperature=1.1,
         )
         rsp_msg = completion.choices[0].message.content.strip("")
-        print("AI 🤖: " + completion.choices[0].message.content.strip(""))
+        # print("AI 🤖: " + completion.choices[0].message.content.strip(""))
         return rsp_msg
     except Exception as e:
         print('error: {}'.format(e))

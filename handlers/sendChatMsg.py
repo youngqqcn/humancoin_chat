@@ -25,6 +25,8 @@ class Resp(BaseModel):
 @router.post("", response_model=ResponseModel)
 async def handler(req: Req):
 
+    logger.info("请求参数: %s", req.json())
+
     rdc = create_redis_client()
     # 检查房间是否存在
     expire_time = rdc.get("chatroomexpire:" + req.room_id)
@@ -64,12 +66,15 @@ async def handler(req: Req):
     opponent_user_id =  room_members[0] if room_members[0] != req.user_id else room_members[1]
 
     # 切换当前发言人
+    logger.info("切换房间{}的发言人为:{}".format(req.room_id, opponent_user_id))
     rdc.hset("chatturnmutex", req.room_id, opponent_user_id)
 
     if str(opponent_user_id).startswith('bot'):
         # 如果是用户的对手是AI, 则插入一条消息到队列, AI机器人消费, 并回复
         rdc.rpush("chataimsgqueue", req.room_id)
+        logger.info("轮到AI发言, 发送消息队列成功")
         pass
 
     rsp = Resp(user_id=req.user_id, room_id=req.room_id, msg_id=msg_id)
+    logger.info("响应内容:{}".format(rsp))
     return create_response(data=rsp)

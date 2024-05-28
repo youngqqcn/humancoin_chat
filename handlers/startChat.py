@@ -27,17 +27,20 @@ class Resp(BaseModel):
 @router.post("", response_model=ResponseModel)
 async def handler(req: Req):
 
+    logger.info("请求参数: %s", req.json())
     random.seed(int(time.time() * 10**6))
     rdc = create_redis_client()
 
     # 如果已经开始排队匹配，不能重复排队
     if rdc.hget("matchroomids", req.user_id) is not None:
-        return create_response(code=111, msg="already in queue")
+        logger.error("用户 %s 已经在匹配中, 不能重复匹配 ", req.user_id)
+        return create_response(code=1001, msg="already in queue")
 
     # 生成 1～100的随机数，来模拟匹配概率
     chat_with_human = False
     if random.randint(1, 100) <= 10:
         chat_with_human = True
+        logger.info("用户%s, 匹配人类", req.user_id)
         # 如果 没人排队
         # ml = rdc.lrange("matchlist")
         # if ml is None or len(ml) == 0:
@@ -79,6 +82,7 @@ async def handler(req: Req):
             # 开始等待匹配 15s
             match_timeout = True
             for i in range(0, 15):
+                logger.info("用户{}正在排队匹配中...".format(req.user_id))
                 await asyncio.sleep(1)
                 other_user_id = rdc.hget("matchhash", req.user_id)
                 if other_user_id != "null":
@@ -89,6 +93,7 @@ async def handler(req: Req):
                     pass
 
             if match_timeout:
+                logger.info("用户{}排队匹配超时".format(req.user_id))
                 # 匹配超时, 删除待匹配信息
                 room_id = ""
                 rdc.hdel("matchhash", req.user_id)
@@ -96,10 +101,16 @@ async def handler(req: Req):
                 rdc.lrem("matchlist", 0, req.user_id)
                 return create_response(code=111, msg="match timeout, please try again")
 
-        assert len(room_users) == 2, "invalid room users"
-        # log.info('聊天室成员:{}'.format(room_users))
+        if len(room_users) != 2:
+            logger.error('聊天室成员数不为2:{}'.format(room_users))
+            raise Exception("invalid room users")
 
-    assert room_id != "", "empty room_id"
+    if room_id == '':
+        logger.error("房间号为空")
+        return create_response(code=1003, msg="system error, please try again later")
+    logger.info("房间号: {}".format(room_id))
+    logger.info("房间用户:{}".format(room_users))
+
 
     # 抢第一发言权
     is_chat_beginner = False
@@ -113,6 +124,7 @@ async def handler(req: Req):
     # 如果是AI开始发言，则需要发送消息通知AI
     if first_chat_user_id.startswith("bot"):
         rdc.rpush("chataimsgqueue", room_id)
+        logger.info("AI先发言, 发送消息到消息队列成功")
 
     # 设置游戏结束时间
     expire_time = int(time.time()) + 2 * 60
@@ -123,5 +135,5 @@ async def handler(req: Req):
             user_id=req.user_id, room_id=room_id, is_chat_beginner=is_chat_beginner
         ),
     )
-
+    logger.info("响应内容:{}".format(rsp))
     return rsp
