@@ -1,9 +1,5 @@
-from fastapi import Request, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-import time
 import jwt
 
-# const TOKEN_SECRET: &str = "GXFC@Fansland.io@2024";
 JWT_SECRET = 'GXFC@Fansland.io@2024'
 JWT_ALGORITHM = 'HS256'
 
@@ -16,6 +12,9 @@ def verify_jwt(jwtoken: str, user_id: str) -> bool:
     except Exception as e:
         print('error: {}'.format(e))
         return False
+
+
+
 
 def main():
     # const JWT_TOKEN: &str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2FkZHJlc3MiOiIweGNkOWNmZjZhOTVkNmJiN2Q4YjhiNTBlYzg5NjUxM2U5YTJjZjY1NGEiLCJleHAiOjE3MDYwODYwNzh9.kLS1tb6wz7maiF7UgFFhlArtIu0zALqroTiUYwHFFzc";
