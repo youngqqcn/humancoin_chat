@@ -4,7 +4,10 @@ from openai import OpenAI
 
 # from prompts.prompt1 import system_prompt
 # from prompts.prompt2 import system_prompt
-from prompts.prompt3 import system_prompt3
+# from prompts.prompt3 import system_prompt3
+# from prompts.prompt4 import system_prompt4
+# from prompts.prompt5 import system_prompt5
+from prompts.prompt6 import system_prompt6
 
 
 g_client = OpenAI(
@@ -12,7 +15,7 @@ g_client = OpenAI(
     api_key="sk-5f2e2a8929d7417487d63d1c956b2660", base_url="https://api.deepseek.com"
 )
 g_messages = [
-    {"role": "system", "content": system_prompt3},
+    {"role": "system", "content": system_prompt6},
 ]
 
 

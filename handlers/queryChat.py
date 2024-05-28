@@ -69,5 +69,5 @@ async def handler(req: Req):
         expire_time=expire_time,
         remaining_sec= remaining_sec
     )
-    logger.info("响应内容:{}".format(rsp))
+    # logger.info("响应内容:{}".format(rsp))
     return create_response(data=rsp)
