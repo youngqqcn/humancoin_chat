@@ -1,4 +1,8 @@
+from fastapi import Request, status
+from fastapi.responses import JSONResponse
 import jwt
+
+from utils.utils import create_response
 
 JWT_SECRET = 'GXFC@Fansland.io@2024'
 JWT_ALGORITHM = 'HS256'
@@ -12,6 +16,21 @@ def verify_jwt(jwtoken: str, user_id: str) -> bool:
     except Exception as e:
         print('error: {}'.format(e))
         return False
+
+
+async def jwt_middleware(request: Request, call_next):
+    jwt_token = request.headers.get("Token")
+    json_body = await request.json()
+    user_id = json_body['user_id']
+    if verify_jwt(jwtoken=jwt_token, user_id=user_id):
+        return await call_next(request)
+
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content=create_response(
+            msg="invalid token", code=status.HTTP_401_UNAUTHORIZED
+        ).dict(),
+    )
 
 
 
