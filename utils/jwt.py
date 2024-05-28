@@ -4,24 +4,24 @@ import jwt
 
 from utils.utils import create_response
 
-JWT_SECRET = 'GXFC@Fansland.io@2024'
-JWT_ALGORITHM = 'HS256'
-
 
 def verify_jwt(jwtoken: str, user_id: str) -> bool:
+    JWT_SECRET = "GXFC@Fansland.io@2024"
+    JWT_ALGORITHM = "HS256"
+
     try:
         claims = jwt.decode(jwtoken, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         print(claims)
-        return claims['user_id'] == user_id
+        return claims["user_id"] == user_id
     except Exception as e:
-        print('error: {}'.format(e))
+        print("error: {}".format(e))
         return False
 
 
 async def jwt_middleware(request: Request, call_next):
-    jwt_token = request.headers.get("Token")
+    jwt_token = request.headers.get("Human-Token")
     json_body = await request.json()
-    user_id = json_body['user_id']
+    user_id = json_body["user_id"]
     if verify_jwt(jwtoken=jwt_token, user_id=user_id):
         return await call_next(request)
 
@@ -33,21 +33,15 @@ async def jwt_middleware(request: Request, call_next):
     )
 
 
-
-
 def main():
-    # const JWT_TOKEN: &str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2FkZHJlc3MiOiIweGNkOWNmZjZhOTVkNmJiN2Q4YjhiNTBlYzg5NjUxM2U5YTJjZjY1NGEiLCJleHAiOjE3MDYwODYwNzh9.kLS1tb6wz7maiF7UgFFhlArtIu0zALqroTiUYwHFFzc";
-
     jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiMTIzNDU2IiwiZXhwIjoxNzE2OTUwMTI2LCJ1c2VyX3R5cGUiOjJ9.3sgPoiOaEse2DQ2z1rxdOI_ymY8B4chjJAW4lV0j3Ik"
-
     if verify_jwt(jwtoken=jwt_token):
-        print('ok')
+        print("ok")
     else:
-        print('failed')
-
+        print("failed")
 
     pass
 
-if __name__ == '__main__':
-    main()
 
+if __name__ == "__main__":
+    main()
