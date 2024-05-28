@@ -42,7 +42,7 @@ async def handler(req: Req):
 
     # 查询消息记录
     msgs = rdc.zrange("chatchannel:" + req.room_id, 0, -1, desc=True)
-    logger.info("历史消息: {}".format(msgs))
+    logger.info("历史消息长度: {}".format(len(msgs)))
     rsp_msgs = []
     if msgs is not None:
         for item in msgs:
