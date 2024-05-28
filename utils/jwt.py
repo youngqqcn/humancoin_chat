@@ -1,8 +1,18 @@
+import time
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 import jwt
 
 from utils.utils import create_response
+
+def create_jwt(user_id: str, exp: int = int(time.time()) + 24*3600):
+    JWT_SECRET = "GXFC@Fansland.io@2024"
+    JWT_ALGORITHM = "HS256"
+    return jwt.encode(key=JWT_SECRET, algorithm=JWT_ALGORITHM, payload={
+        "user_id": user_id,
+        "exp": exp
+    })
+
 
 
 def verify_jwt(jwtoken: str, user_id: str) -> bool:

@@ -17,4 +17,4 @@ app.include_router(queryChat.router, prefix="/queryChat", tags=["queryChat"])
 app.include_router(finishChat.router, prefix="/finishChat", tags=["finishChat"])
 
 
-app.add_middleware(BaseHTTPMiddleware, dispatch=jwt_middleware)
+# app.add_middleware(BaseHTTPMiddleware, dispatch=jwt_middleware)
