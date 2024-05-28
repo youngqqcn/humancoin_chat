@@ -7,6 +7,7 @@ import random
 
 from .prompts.prompt1 import system_prompt1
 from .prompts.prompt2 import system_prompt2
+from .prompts.prompt3 import system_prompt3
 
 
 async def ai_chat(messages: List[dict], room_id: str) -> str:
@@ -22,7 +23,7 @@ async def ai_chat(messages: List[dict], room_id: str) -> str:
         base_url="https://api.deepseek.com",
     )
 
-    system_prompts = [system_prompt1, system_prompt2]
+    system_prompts = [system_prompt1, system_prompt2, system_prompt3]
 
     g_messages = [
         {
