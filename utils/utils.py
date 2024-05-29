@@ -7,12 +7,12 @@ def create_response(data: any = None, msg: str = "ok", code: int = 0):
 
 
 
-def create_redis_client() -> Redis:
+def create_redis_client(db=1) -> Redis:
     return Redis(
         host="localhost",
         port=6379,
         password="gooDluck4u",
-        db=0,
+        db=db,
         decode_responses=True,  # 自动解码响应
     )
 
