@@ -63,6 +63,11 @@ async def handler(req: Req):
         "chatroomresult:" + req.room_id, req.user_id, "win" if rsp.is_win else "lose"
     )
 
+    # 更新胜率统计
+    rdc.hincrby("chattotals", req.user_id)
+    if rsp.is_win:
+        rdc.hincrby("chatwins", req.user_id)
+
     # 发送消息，增加积分, 输的不得积分
     if rsp.is_win:
         rdc.rpush(
