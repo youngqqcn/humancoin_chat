@@ -3,10 +3,10 @@ api-dev:
 	uvicorn api:app --host '0.0.0.0' --port 4033 --reload
 
 api-test:
-	nohup uvicorn api:app --host '0.0.0.0' --port 4033 >> api_test.log 2>&1 &
+	nohup uvicorn api:app --host '0.0.0.0' --port 4033 --workers 2 >> api_test.log 2>&1 &
 
 api-pro:
-	nohup uvicorn api:app --host '0.0.0.0' --port 4033 >> api_pro.log  2>&1 &
+	nohup uvicorn api:app --host '0.0.0.0' --port 4033 --workers 4 --limit-concurrency 1000 --backlog 4096 >> api_pro.log  2>&1 &
 
 
 points-dev:
