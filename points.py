@@ -92,7 +92,7 @@ def main():
             port=3306,
             user="root",
             password="ae633jmFLiAGqigSO41",
-            db="humancoin",
+            db="tg_server_db",
         )
         task(mysql_config)
     elif args.env == "pro":
@@ -101,7 +101,7 @@ def main():
             port=3306,
             user="admin",
             password="ae633jmFLiAGqigSO42",
-            db="humancoin",
+            db="tg_server_db",
         )
         task(mysql_config)
     else:

@@ -1,4 +1,4 @@
-CREATE TABLE `user_integral_wallet` (
+CREATE TABLE `user_point_wallet` (
   `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'PK',
   `user_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户ID',
   `balance` bigint DEFAULT '0' COMMENT '余额',
