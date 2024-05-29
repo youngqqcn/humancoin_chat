@@ -53,8 +53,9 @@ def task(config: MySqlConfig):
                     # 更新用户积分余额
                     operator = "+" if points > 0 else "-"
                     sql_str = f"""
-                        UPDATE user_integral_wallet
-                        SET balance = IF(balance {operator} {points} >= 0, balance {operator} {points}, 0)
+                        UPDATE user_point_wallet
+                        SET balance = IF(balance {operator} {points} >= 0, balance {operator} {points}, 0),
+                        update_time='{time_str}'
                         WHERE user_id='{user_id}';
                         """
                     print(sql_str)
