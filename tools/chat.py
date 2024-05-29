@@ -7,7 +7,7 @@ import sys
 sys.path.append('.')
 from utils.jwt import create_jwt
 
-host = "http://127.0.0.1:8000"
+host = "http://127.0.0.1:4033"
 
 
 def finish_chat(user_id: str, room_id: str):
