@@ -1,43 +1,34 @@
-.PHONY: activate
-activate:
-	source ../venv/bin/activate
+check-venv:
+	@if [ -z "$$VIRTUAL_ENV_PROMPT" ]; then \
+		echo "venv is not activated" ; \
+    fi
 
-.PHONY: start-api-dev
-start-api-dev:
+start-api-dev: check-venv
 	HCJWTENABLE=1 uvicorn  humancoin_api:app --host '0.0.0.0' --port 4033 --reload
 
-.PHONY: start-api-test
-start-api-test:
+start-api-test: check-venv
 	HCJWTENABLE=1 nohup uvicorn humancoin_api:app --host '0.0.0.0' --port 4033 --workers 2 >> api_test.log 2>&1 &
 
-.PHONY: start-api-pro
-start-api-pro:
+start-api-pro: check-venv
 	HCJWTENABLE=1 nohup uvicorn humancoin_api:app --host '0.0.0.0' --port 4033 --workers 4 --limit-concurrency 1000 --backlog 4096 >> api_pro.log  2>&1 &
 
-
-.PHONY: start-points-dev
-start-points-dev:
+start-points-dev: check-venv
 	python3 -u humancoin_points.py --env test
 
-.PHONY: start-points-test
-start-points-test:
+start-points-test: check-venv
 	nohup python3 -u humancoin_points.py --env test >> points_test.log 2>&1 &
 
-.PHONY: start-points-pro
-start-points-pro:
+start-points-pro: check-venv
 	nohup python3 -u humancoin_points.py --env pro >> points_pro.log 2>&1 &
 
 
-.PHONY: start-bot-dev
-start-bot-dev:
+start-bot-dev: check-venv
 	python3 -u humancoin_bot.py
 
-.PHONY: start-bot-test
-start-bot-test:
+start-bot-test: check-venv
 	nohup python3 -u humancoin_bot.py >> bot_test.log 2>&1 &
 
-.PHONY: start-bot-pro
-start-bot-pro:
+start-bot-pro: check-venv
 	nohup python3 -u humancoin_bot.py >> bot_pro.log 2>&1 &
 
 
