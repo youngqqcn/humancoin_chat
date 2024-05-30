@@ -20,5 +20,5 @@ app.include_router(queryChat.router, prefix="/queryChat", tags=["queryChat"])
 app.include_router(finishChat.router, prefix="/finishChat", tags=["finishChat"])
 app.include_router(getWinRate.router, prefix="/getWinRate", tags=["getWinRate"])
 
-
-# app.add_middleware(BaseHTTPMiddleware, dispatch=jwt_middleware)
+if os.getenv('HCJWTENABLE') is not None:
+    app.add_middleware(BaseHTTPMiddleware, dispatch=jwt_middleware)
