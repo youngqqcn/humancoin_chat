@@ -1,9 +1,12 @@
+import os
 from fastapi import FastAPI, HTTPException
 
 from utils.exceptions import general_exception_handler, http_exception_handler
 from handlers import startChat, sendChatMsg, queryChat, finishChat, getWinRate
 from utils.hcjwt import jwt_middleware
 from starlette.middleware.base import BaseHTTPMiddleware
+
+os.environ["PYTHONUNBUFFERED"] = "1"
 
 app = FastAPI()
 

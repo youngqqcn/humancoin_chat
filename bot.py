@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import time
 import uuid
 
@@ -7,6 +8,7 @@ import uuid
 from llms.deepseek import ai_chat
 from utils.redis import create_redis_client
 
+os.environ['PYTHONUNBUFFERED'] = '1'
 
 #
 async def chat_handler(tid: int, room_id: str):

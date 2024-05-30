@@ -1,4 +1,5 @@
 import json
+import os
 import random
 import time
 import pymysql
@@ -7,6 +8,8 @@ from utils.redis import create_redis_client
 from datetime import datetime
 import argparse
 
+
+os.environ['PYTHONUNBUFFERED'] = '1'
 
 class MySqlConfig:
     def __init__(self, host, port, user, password, db):
