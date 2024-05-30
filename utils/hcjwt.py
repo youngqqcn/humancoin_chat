@@ -3,7 +3,8 @@ from fastapi import Request, status
 from fastapi.responses import JSONResponse
 import jwt
 
-from utils.utils import HcError, create_redis_client, create_response
+from .redis import create_redis_client
+from .reponse import HcError, create_response
 
 def create_jwt(user_id: str, exp: int = int(time.time()) + 24*3600):
     JWT_SECRET = "GXFC@Fansland.io@2024"
@@ -61,8 +62,9 @@ async def jwt_middleware(request: Request, call_next):
 
 
 def main():
+    print(create_jwt('123456'))
     jwt_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiMTIzNDU2IiwiZXhwIjoxNzE2OTUwMTI2LCJ1c2VyX3R5cGUiOjJ9.3sgPoiOaEse2DQ2z1rxdOI_ymY8B4chjJAW4lV0j3Ik"
-    if verify_jwt(jwtoken=jwt_token):
+    if verify_jwt(jwtoken=jwt_token, user_id='123456'):
         print("ok")
     else:
         print("failed")

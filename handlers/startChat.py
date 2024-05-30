@@ -5,11 +5,10 @@ from typing import Union
 import uuid
 from fastapi import APIRouter
 
-# from fastapi.logger import logger
 from pydantic import BaseModel
 
-from models.models import ResponseModel
-from utils.utils import HcError, create_redis_client, create_response, logger
+from utils import ResponseModel
+from utils import HcError, create_redis_client, create_response, logger
 
 router = APIRouter()
 
@@ -32,7 +31,7 @@ async def handler(req: Req):
     rdc = create_redis_client()
 
     # 如果已经开始排队匹配，不能重复排队
-    queue_users = rdc.lrange("matchlist")
+    queue_users = rdc.lrange("matchlist", 0, -1)
     if queue_users is not None and len(queue_users) > 0:
         if req.user_id in set(queue_users):
             logger.error("用户 %s 已经在匹配队列中, 不能重复匹配 ", req.user_id)
@@ -42,7 +41,7 @@ async def handler(req: Req):
 
     # 生成 1～100的随机数，来模拟匹配概率
     chat_with_human = False
-    if random.randint(1, 100) <= 10:
+    if random.randint(1, 100) <= 50:
         chat_with_human = True
         logger.info("用户%s, 匹配人类", req.user_id)
 

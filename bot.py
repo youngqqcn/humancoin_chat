@@ -5,7 +5,7 @@ import uuid
 
 
 from llms.deepseek import ai_chat
-from utils.utils import create_redis_client
+from utils.redis import create_redis_client
 
 
 #

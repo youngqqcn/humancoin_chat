@@ -5,7 +5,7 @@ import sys
 
 import sys
 sys.path.append('.')
-from utils.jwt import create_jwt
+from utils.hcjwt import create_jwt
 
 host = "http://127.0.0.1:4033"
 
@@ -74,6 +74,10 @@ def start_chat(user_id: str):
         print("匹配失败:{}".format(rsp.text))
         exit(0)
 
+    if rsp.json()['code'] == 1002:
+        print('匹配超时')
+        return None
+
     room_id = rsp.json()["data"]["room_id"]
     print("房间号: {}".format(room_id))
     return room_id
@@ -86,6 +90,8 @@ def main():
 
     # 开始匹配
     room_id = start_chat(user_id=user_id)
+    if room_id is None: return
+
 
     while True:
         while True:

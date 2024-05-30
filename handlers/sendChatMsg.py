@@ -4,8 +4,8 @@ import uuid
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from models.models import ResponseModel
-from utils.utils import HcError, create_redis_client, create_response, logger
+from utils import ResponseModel
+from utils import HcError, create_redis_client, create_response, logger
 
 router = APIRouter()
 

@@ -15,17 +15,20 @@ from .prompts.prompt6 import system_prompt6
 
 async def ai_chat(messages: List[dict], room_id: str) -> str:
     random.seed(int(time.time() * 10**6))
-    g_client = OpenAI(
-        api_key=random.choices(
+    api_key = random.choices(
             [
-                "sk-654b60ab100f44b885c5d3c004aec469",  # yqq
-                "sk-5f2e2a8929d7417487d63d1c956b2660",  # 李泳
+                # "sk-654b60ab100f44b885c5d3c004aec469",  # yqq
+                # "sk-5f2e2a8929d7417487d63d1c956b2660",  # 李泳
                 "sk-7dc16145f1dd4a97ad4adca700ed924f",  # 国辉
-                "sk-1ebe13581a3244a5b4196c83e034a8d9",  # 小杰
-                "sk-fec9b77513f94db9a147f11b6abcb011",  # 锦源
+                # "sk-1ebe13581a3244a5b4196c83e034a8d9",  # 小杰
+                # "sk-fec9b77513f94db9a147f11b6abcb011",  # 锦源
             ],
             k=1,
-        )[0],
+        )[0]
+    print(api_key)
+
+    g_client = OpenAI(
+        api_key=api_key,
         base_url="https://api.deepseek.com",
     )
 

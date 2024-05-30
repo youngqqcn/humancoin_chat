@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
 
-from exceptions.exceptions import general_exception_handler, http_exception_handler
+from utils.exceptions import general_exception_handler, http_exception_handler
 from handlers import startChat, sendChatMsg, queryChat, finishChat, getWinRate
-from utils.jwt import jwt_middleware
+from utils.hcjwt import jwt_middleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 app = FastAPI()

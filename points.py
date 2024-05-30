@@ -3,7 +3,7 @@ import random
 import time
 import pymysql
 
-from utils.utils import create_redis_client
+from utils.redis import create_redis_client
 from datetime import datetime
 import argparse
 

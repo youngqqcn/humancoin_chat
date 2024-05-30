@@ -4,8 +4,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from models.models import ResponseModel
-from utils.utils import HcError, create_redis_client, create_response, logger
+from utils import ResponseModel
+from utils import HcError, create_redis_client, create_response, logger
 
 # 积分奖励
 win_rewards = 100
