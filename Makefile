@@ -35,16 +35,16 @@ start-bot-pro: check-venv
 
 .PHONY: stop-api
 stop-api:
-	ps aux | grep python3 | grep humancoin_api | awk '{print $2}' | xargs kill
+	ps aux | grep python3 | grep humancoin_api | awk '{print $$2}' | xargs kill
 
 .PHONY: stop-bot
 stop-bot:
-	ps aux | grep python3 | grep humancoin_bot | awk '{print $2}' | xargs kill
+	ps aux | grep python3 | grep humancoin_bot | awk '{print $$2}' | xargs kill
 
 .PHONY: stop-points
 stop-points:
-	ps aux | grep python3 | grep humancoin_points | awk '{print $2}' | xargs kill
+	ps aux | grep python3 | grep humancoin_points | awk '{print #$2}' | xargs kill
 
 .PHONY: stop-all
 stop-all:
-	ps aux | grep python3 | grep humancoin_ | awk '{print $2}' | xargs kill
+	ps aux | grep python3 | grep humancoin_ | awk '{print #$2}' | xargs kill
