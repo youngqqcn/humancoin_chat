@@ -42,7 +42,7 @@ async def jwt_middleware(request: Request, call_next):
             raise Exception("token verify failed")
 
         # 获取redis中的token
-        rdc = create_redis_client(db=0)
+        rdc = create_redis_client(db=5)
         token  = rdc.get('authtoken:{}'.format(user_id))
         if token is None:
             raise Exception("token is not in redis")
