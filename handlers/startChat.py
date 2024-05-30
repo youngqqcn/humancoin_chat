@@ -41,7 +41,7 @@ async def handler(req: Req):
 
     # 生成 1～100的随机数，来模拟匹配概率
     chat_with_human = False
-    if random.randint(1, 100) <= 50:
+    if random.randint(1, 100) <= 30:
         chat_with_human = True
         logger.info("用户%s, 匹配人类", req.user_id)
 
@@ -60,12 +60,13 @@ async def handler(req: Req):
         if active_user_id is not None and active_user_id == req.user_id:
             active_user_id
         if active_user_id is not None:  # 有用户等待, 直接匹配
-            rdc.hset("matchhash", active_user_id, req.user_id)
-            # 返回匹配id号
-            room_users = [active_user_id, req.user_id]
-            room_id = rdc.hget("matchroomids", active_user_id)
-            # 将自己添加到聊天成员
-            rdc.rpush("chatroommembers:" + room_id, *[active_user_id, req.user_id])
+            if rdc.hset("matchhash", active_user_id) is not None:
+                rdc.hset("matchhash", active_user_id, req.user_id)
+                # 返回匹配id号
+                room_users = [active_user_id, req.user_id]
+                room_id = rdc.hget("matchroomids", active_user_id)
+                # 将自己添加到聊天成员
+                rdc.rpush("chatroommembers:" + room_id, *[active_user_id, req.user_id])
         else:  # 没有等待用户, 自己加入等待
             rdc.hset("matchhash", req.user_id, "null")
             rdc.rpush("matchlist", req.user_id)
@@ -85,9 +86,9 @@ async def handler(req: Req):
                 logger.info("用户{}排队匹配超时".format(req.user_id))
                 # 匹配超时, 删除待匹配信息
                 room_id = ""
+                rdc.lrem("matchlist", 0, req.user_id)
                 rdc.hdel("matchhash", req.user_id)
                 rdc.hdel("matchroomids", req.user_id)
-                rdc.lrem("matchlist", 0, req.user_id)
                 return create_response(code=HcError.MATCH_TIMEOUT)
         if len(room_users) != 2:
             logger.error("聊天室成员数不为2:{}".format(room_users))
