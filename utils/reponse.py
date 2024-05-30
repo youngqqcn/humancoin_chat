@@ -25,7 +25,7 @@ def error_msg_map(err_code: int) -> str:
         HcError.SYSTEM_ERROR: "some error occured, please try again later",
     }
     if err_code not in m:
-        return "Unknow error"
+        return "Unknown error"
     return m[err_code]
 
 
