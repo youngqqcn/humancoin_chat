@@ -2,7 +2,7 @@ check-venv:
 	@if [ -z "$$VIRTUAL_ENV_PROMPT" ]; then \
 		echo "venv is not activated" ; \
 		exit 1;
-    fi
+	fi
 
 start-api-dev: check-venv
 	HCJWTENABLE=1 uvicorn  humancoin_api:app --host '0.0.0.0' --port 4033 --reload
