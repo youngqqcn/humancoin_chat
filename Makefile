@@ -1,7 +1,7 @@
 check-venv:
 	@if [ -z "$$VIRTUAL_ENV_PROMPT" ]; then \
 		echo "venv is not activated" ; \
-		exit 1;
+		exit 1; \
 	fi
 
 start-api-dev: check-venv
