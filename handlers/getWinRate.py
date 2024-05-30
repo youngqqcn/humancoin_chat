@@ -24,7 +24,6 @@ class Resp(BaseModel):
 async def handler(req: Req):
     logger.info("请求参数: %s", req.json())
     rdc = create_redis_client()
-    # 检查房间是否存在
 
     total = rdc.hget("chattotals", req.user_id)
     total = 0 if total is None else int(total)

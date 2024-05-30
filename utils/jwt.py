@@ -3,7 +3,7 @@ from fastapi import Request, status
 from fastapi.responses import JSONResponse
 import jwt
 
-from utils.utils import create_response
+from utils.utils import HcError, create_redis_client, create_response
 
 def create_jwt(user_id: str, exp: int = int(time.time()) + 24*3600):
     JWT_SECRET = "GXFC@Fansland.io@2024"
@@ -29,18 +29,35 @@ def verify_jwt(jwtoken: str, user_id: str) -> bool:
 
 
 async def jwt_middleware(request: Request, call_next):
-    jwt_token = request.headers.get("Human-Token")
-    json_body = await request.json()
-    user_id = json_body["user_id"]
-    if verify_jwt(jwtoken=jwt_token, user_id=user_id):
-        return await call_next(request)
+    try:
+        jwt_token = request.headers.get("Human-Token")
+        if jwt_token is None:
+            raise Exception("missing token")
 
-    return JSONResponse(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        content=create_response(
-            msg="invalid token", code=status.HTTP_401_UNAUTHORIZED
-        ).dict(),
-    )
+        #解析token
+        json_body = await request.json()
+        user_id = json_body["user_id"]
+        if not verify_jwt(jwtoken=jwt_token, user_id=user_id):
+            raise Exception("token verify failed")
+
+        # 获取redis中的token
+        rdc = create_redis_client(db=0)
+        token  = rdc.get('authtoken:{}'.format(user_id))
+        if token is None:
+            raise Exception("token is not in redis")
+        if str(token).strip() != jwt_token.strip():
+            raise Exception("token is not matched")
+
+        return await call_next(request)
+    except Exception as e:
+        print('jwt_middleware error: {}'.format(e))
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=create_response(
+                code=HcError.AUTH_FAIL
+            ).dict(),
+        )
+
 
 
 def main():

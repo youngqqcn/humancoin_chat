@@ -1,13 +1,15 @@
 import json
 import time
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from models.models import ResponseModel
-from utils.utils import create_redis_client, create_response, logger
+from utils.utils import HcError, create_redis_client, create_response, logger
 
 # 积分奖励
-rewards = 100
+win_rewards = 100
+lose_rewards = 0
 
 router = APIRouter()
 
@@ -24,14 +26,15 @@ class Resp(BaseModel):
     rewards: float
 
 
-@router.post("", response_model=ResponseModel)
+@router.post("", response_model=ResponseModel) #, response_class=JSONResponse)
 async def handler(req: Req):
     logger.info("请求参数: %s", req.json())
     rdc = create_redis_client()
     # 检查房间是否存在
     expire_time = rdc.get("chatroomexpire:" + req.room_id)
     if expire_time is None:
-        raise HTTPException(status_code=404, detail="room not found")
+        logger.info(f"房间未找到:{req.room_id}")
+        return create_response(code=HcError.ROOM_NOT_FOUND)
 
     # 只能判断一次, 防止重复判断
     result = rdc.hget("chatroomresult:" + req.room_id, req.user_id)
@@ -40,7 +43,7 @@ async def handler(req: Req):
         rsp = Resp(user_id=req.user_id, room_id=req.room_id, is_win=False, rewards=0)
         if result == "win":
             rsp.is_win = True
-            rsp.rewards = rewards
+            rsp.rewards = win_rewards
         return create_response(data=rsp)
 
     # 获取该用户的对手
@@ -56,7 +59,11 @@ async def handler(req: Req):
     guess_role = "human" if req.human else "bot"
     if guess_role == opponent_role:
         rsp.is_win = True
-        rsp.rewards = rewards
+        rsp.rewards = win_rewards
+    else:
+        rsp.is_win = False
+        rsp.rewards = lose_rewards
+
 
     # 更新聊天室的状态为结束
     rdc.hset(
@@ -76,7 +83,7 @@ async def handler(req: Req):
                 {
                     "user_id": req.user_id,
                     "room_id": req.room_id,
-                    "points": rewards,
+                    "points": win_rewards,
                     "timestamp": int(time.time()),
                 }
             ),

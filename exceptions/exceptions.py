@@ -15,8 +15,9 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def general_exception_handler(request: Request, exc: Exception):
     print("==============================")
     response = ResponseModel(
-        code=HTTP_500_INTERNAL_SERVER_ERROR,
-        msg="Internal Server Error",
+        code=1099,
+        msg="some error occured, please try again later",
         data=None
     )
+
     return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR, content=response.dict())

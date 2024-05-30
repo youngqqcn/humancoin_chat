@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from models.models import ResponseModel
-from utils.utils import create_redis_client, create_response, logger
+from utils.utils import HcError, create_redis_client, create_response, logger
 
 router = APIRouter()
 
@@ -32,7 +32,7 @@ async def handler(req: Req):
     expire_time = rdc.get("chatroomexpire:" + req.room_id)
     if expire_time is None:
         logger.info(f"房间未找到:{req.room_id}")
-        raise HTTPException(status_code=404, detail="room not found")
+        return create_response(code=HcError.ROOM_NOT_FOUND)
 
     # 检查房间是否过期, 过期了就不再插入redis，直接返回即可
     if int(expire_time) <= int(time.time()):
@@ -46,7 +46,7 @@ async def handler(req: Req):
         user_id = "x"
     if user_id != req.user_id:
         logger.error(f'房间: {req.room_id}, 用户不是当前说话人: {req.user_id}, 说话人:{user_id}')
-        raise HTTPException("1002", "not turn")
+        return create_response(code=HcError.NOT_TURN)
 
     # 将消息插入
     ts = int(time.time())
