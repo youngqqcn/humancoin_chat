@@ -114,8 +114,10 @@ async def handler(req: Req):
     logger.info("房间用户:{}".format(room_users))
 
     # 抢第一发言权
+    random.seed(int(time.time() * 10**6 + 2983))
+    random.shuffle(room_users)
     is_chat_beginner = False
-    rdc.hsetnx("chatturnmutex", room_id, random.choices(room_users)[0])
+    rdc.hsetnx("chatturnmutex", room_id, random.choices(room_users , k=1)[0])
     first_chat_user_id = rdc.hget("chatturnmutex", room_id)
     assert first_chat_user_id is not None, "invalid room"
     if first_chat_user_id == req.user_id:

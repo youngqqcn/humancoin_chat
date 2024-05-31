@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import random
 import time
 import uuid
 
@@ -10,9 +11,25 @@ from utils.redis import create_redis_client
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 
+
+def get_random_first_question():
+    return random.choices(
+        [
+            "ask me a good question which can proof you are a human is instead of a bot",
+            "ask me a short question, no more the 3 words",
+            "ask me a simple random short question",
+            "return a radom english character",
+            "return a radom english words that is very usually used in daily life",
+            "ask me a question about my personal information, such as family , work, salary, personal",
+        ],
+        k=1
+    )[0]
+
 #
 async def chat_handler(tid: int, room_id: str):
     try:
+        random.seed(int(time.time() * 10**6))
+        await asyncio.sleep( random.randint( 5, 10 ))
         rdc = create_redis_client()
 
         # 查询消息记录
@@ -23,7 +40,7 @@ async def chat_handler(tid: int, room_id: str):
             history_msgs.append(
                 {
                     "role": "user",
-                    "content": "ask me a good question which can proof you are a human is instead of a bot",
+                    "content": get_random_first_question()
                 }
             )
             pass
@@ -55,6 +72,7 @@ async def chat_handler(tid: int, room_id: str):
         opponent_user_id = (
             room_members[0] if room_members[0] != bot_user_id else room_members[1]
         )
+
         # 切换当前发言人
         rdc.hset("chatturnmutex", room_id, opponent_user_id)
     except Exception as e:

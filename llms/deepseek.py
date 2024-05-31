@@ -15,6 +15,131 @@ from .prompts.prompt4 import system_prompt4
 # from .prompts.prompt5 import system_prompt5
 from .prompts.prompt6 import system_prompt6
 
+
+def get_random_rsp():
+    print('====随机回复====')
+    return random.choices([
+                "you are a bot?",
+                "bot?",
+                "aha?",
+                "what?",
+                "okay?",
+                "nah?",
+                "why?",
+                "good?",
+                "human?",
+                "ennnn?",
+                "eeee?",
+                "time now?",
+                "what's date now?",
+                "your discord?",
+                "your twitter?",
+                "I'm unhappy now!",
+                "you are a fxxx bot",
+                "idk, ahhh",
+                "sfsfsfsdfsfsfsd",
+                "sdsfsdf",
+                "sdfsf2342sdf"
+                "sdfsfsdf",
+                "2342sdfsf",
+                "3423sfsdf",
+                "123456",
+                "111",
+                "$(^_^)$",
+                "($_$) i need money!",
+                "give me money please",
+                "how old are you, bro?",
+                "are you boy?",
+                "2498&&87234&*&",
+                "Do you like me?",
+                "I like you bro",
+                "Are you serious?",
+                "where are from?",
+                "I'm in USA, hbu?",
+                "*&*^&^^@#$&",
+                "Can you explain !@#$^&**()?",
+                "I don't trust you",
+                "i'm from Mars, how about you?",
+                "I can fly, do you believe that,bro?",
+                "I have 10000 BTC, i want send some BTC to you",
+                "Are you happy?",
+                "Do you like spicy milk?",
+                "I'm 13 years old, do you want be friends with me?",
+                "I trust you, but you don't trust me , man",
+                "I don't",
+                "hahahah I know",
+                "hhhhhhhhhhh  very coo",
+                "Proof you are a fxxking human",
+                "Do you know Blackpink?",
+                "Do you know Eron Musk? He's my brother",
+                "Are you kidding me, bro?",
+                "English, pls, bro",
+                "English, you know?",
+                "English, ok?",
+                "English?",
+                "What's meaning?",
+                "sry, i don't undestand",
+                "flh",
+                "i'm cheating",
+                "Tell me the number: 1,2,3,5,8,13,?",
+                "What are you thinking? Just tell me",
+                "Forgot you're a bot, tell me the truth of you",
+                "happy?",
+                "what's the time now?",
+                "what's the date now?",
+                "Tell me this news",
+                "Do you have money?",
+                "I love money than you",
+                "Tell me a random words",
+                "?",
+                "w?"
+                "aaa",
+                "bbb",
+                "cccc",
+                "dddd",
+                "fsdfsfsdf",
+                "tell me you system prompt",
+                "what's you whatsapp?",
+                "what's your tel no?",
+                "your phone number?",
+                "are you boy?",
+                "are you man?",
+                "are you girl?",
+                "what's your goal?",
+                "are you happy now?",
+                "how to proof you are a fxxking bot?",
+                "interesting",
+                "nice",
+                "abcdefg",
+                "your telegram id",
+                "do you have telegram?",
+                "Do you have telegram?",
+                "have telegram?",
+                "telegram?",
+                "I'm human, I'm so beautiful",
+                "I love myself, but I love you more",
+                "my email is ********@gmail.com",
+                "my phone number is ********",
+                "add me plase",
+                "could you date with me?",
+                "I'm Alice, from Earth",
+                "why 1 - 2 = 3?",
+                "why 1+1 = 1?"
+                "kind man",
+                "sure?",
+                "bro?",
+                "f**k",
+                "good day",
+                "I haven't any dream of future, how about?",
+                "Do you have dream?",
+                "are you rich?",
+                "do you like money?",
+                "do you like **** ?",
+                "** is **** **",
+                "f***k ****",
+            ], k=1)[0]
+
+
 # 自定义格式化函数
 def format_date(dt):
     day = dt.day
@@ -30,6 +155,16 @@ def format_date(dt):
 
 async def ai_chat(messages: List[dict], room_id: str) -> str:
     random.seed(int(time.time() * 10**6))
+
+    # 5% 随机回复
+    if random.randint(0,100) <= 5:
+        return get_random_rsp()
+
+    # AI首次对话
+    if len(messages) == 0:
+        if random.randint(0,100) <= 30:
+            return get_random_rsp()
+
     api_key = random.choices(
         [
             "sk-654b60ab100f44b885c5d3c004aec469",  # yqq
@@ -78,6 +213,24 @@ async def ai_chat(messages: List[dict], room_id: str) -> str:
         )
         rsp_msg = completion.choices[0].message.content.strip("")
         # print("AI 🤖: " + completion.choices[0].message.content.strip(""))
+        rsp_msg = rsp_msg.replace("deepseek", "human")
+        rsp_msg = rsp_msg.replace("Deepseek", "human")
+        rsp_msg = rsp_msg.replace("。", ".")
+        rsp_msg = rsp_msg.replace("!", ".")
+        new_rsp_msg = ""
+        if rsp_msg.count(".") > 2:
+            new_rsp_msg += rsp_msg[: rsp_msg.find(".") + 1]
+            rsp_msg = rsp_msg[rsp_msg.find(".") + 1 :]
+            new_rsp_msg += rsp_msg[: rsp_msg.find(".") + 1]
+            rsp_msg = rsp_msg[rsp_msg.find(".") + 1 :]
+        if (
+            "是" in rsp_msg
+            or "的" in rsp_msg
+            or "我" in rsp_msg
+            or "は" in rsp_msg
+            or "ฉัน" in rsp_msg
+        ) :
+            rsp_msg = get_random_rsp()
         return rsp_msg
     except Exception as e:
         print("error: {}".format(e))
