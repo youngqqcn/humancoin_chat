@@ -29,7 +29,9 @@ def verify_jwt(jwtoken: str, user_id: str) -> bool:
             "verify_iss": False,
         })
         print(claims)
-        return claims["user_id"] == user_id
+        if claims["user_id"] == user_id:
+            return True
+        print("用户id不匹配, req.user_id {},  claims: {}".format(user_id, claims['user_id']))
     except Exception as e:
         print("error: {}".format(e))
         return False
