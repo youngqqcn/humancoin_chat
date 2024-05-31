@@ -44,8 +44,8 @@ stop-bot:
 
 .PHONY: stop-points
 stop-points:
-	@ps aux | grep python3 | grep humancoin_points | awk '{print #$2}' | xargs kill
+	@ps aux | grep python3 | grep humancoin_points | awk '{print $$2}' | xargs kill
 
 .PHONY: stop-all
 stop-all:
-	@ps aux | grep python3 | grep humancoin_ | awk '{print #$2}' | xargs kill
+	@ps aux | grep python3 | grep humancoin_ | awk '{print $$2}' | xargs kill
