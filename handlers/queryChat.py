@@ -47,7 +47,11 @@ async def handler(req: Req):
     if msgs is not None:
         for item in msgs:
             msg = json.loads(item)
-            rsp_msgs.append(Msg(**msg))
+            msg = Msg(**msg)
+            # 隐藏用户id
+            if msg.user_id != req.user_id :
+                msg.user_id = 'x'
+            rsp_msgs.append(msg)
 
     expire_time = rdc.get("chatroomexpire:" + req.room_id)
     time_up = False
