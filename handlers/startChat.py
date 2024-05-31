@@ -65,7 +65,7 @@ async def handler(req: Req):
                     room_users = [active_user_id, req.user_id]
                     room_id = rdc.hget("matchroomids", active_user_id)
                     # 将自己添加到聊天成员
-                    rdc.rpush("chatroommembers:" + room_id, *[active_user_id, req.user_id])
+                    rdc.sadd("chatroommembers:" + room_id, *[active_user_id, req.user_id])
                     match_ok = True
 
     # 如果没有主动匹配成功, 都进入被动匹配
@@ -83,7 +83,7 @@ async def handler(req: Req):
                 # 匹配成功
                 room_id = rdc.hget("matchroomids", req.user_id)
                 room_users = [req.user_id, other_user_id]
-                rdc.rpush("chatroommembers:" + room_id, *room_users)
+                rdc.sadd("chatroommembers:" + room_id, *room_users)
                 match_timeout = False
                 break
 
@@ -102,7 +102,7 @@ async def handler(req: Req):
                 # 为该用户匹配AI
                 room_users = [req.user_id, "bot0001"]
                 room_id = str(uuid.uuid4())
-                rdc.rpush("chatroommembers:" + room_id, *room_users)
+                rdc.sadd("chatroommembers:" + room_id, *room_users)
             else:
                 logger.info("未匹配AI, 让用户重试...")
                 return create_response(code=HcError.MATCH_TIMEOUT)

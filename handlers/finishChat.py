@@ -50,7 +50,8 @@ async def handler(req: Req):
         return create_response(data=rsp)
 
     # 获取该用户的对手
-    room_members = rdc.lrange("chatroommembers:" + req.room_id, 0, -1)
+    room_members = rdc.smembers("chatroommembers:" + req.room_id)
+    room_members = list(room_members)
     assert len(room_members) == 2, "invalid room"
 
     opponent_user_id = (

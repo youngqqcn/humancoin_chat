@@ -4,6 +4,7 @@ import os
 import random
 import time
 import uuid
+import traceback
 
 
 from llms.deepseek import ai_chat
@@ -68,7 +69,8 @@ async def chat_handler(tid: int, room_id: str):
         rdc.zadd("chatchannel:" + room_id, {json.dumps(msg): ts})
 
         # 获取该用户的对手
-        room_members = rdc.lrange("chatroommembers:" + room_id, 0, -1)
+        room_members = rdc.smembers("chatroommembers:" + room_id)
+        room_members = list(room_members)
         opponent_user_id = (
             room_members[0] if room_members[0] != bot_user_id else room_members[1]
         )
@@ -76,6 +78,7 @@ async def chat_handler(tid: int, room_id: str):
         # 切换当前发言人
         rdc.hset("chatturnmutex", room_id, opponent_user_id)
     except Exception as e:
+        traceback.print_exc()
         print("========= error: {}".format(e))
     pass
 

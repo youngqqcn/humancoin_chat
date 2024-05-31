@@ -62,7 +62,8 @@ async def handler(req: Req):
     logger.info(f"房间:{req.room_id}, 用户:{req.user_id}, 发送消息: {req.msg}")
 
     # 获取该用户的对手
-    room_members = rdc.lrange("chatroommembers:" + req.room_id, 0, -1)
+    room_members = rdc.smembers("chatroommembers:" + req.room_id)
+    room_members = list(room_members)
     opponent_user_id =  room_members[0] if room_members[0] != req.user_id else room_members[1]
 
     # 切换当前发言人
