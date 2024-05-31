@@ -57,6 +57,8 @@ async def jwt_middleware(request: Request, call_next):
         if token is None:
             raise Exception("token is not in redis")
         if str(token).strip() != jwt_token.strip():
+            print('req.token={}'.format(jwt_token))
+            print('redis.token={}'.format(token))
             raise Exception("token is not matched")
 
         return await call_next(request)
