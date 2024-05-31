@@ -84,3 +84,47 @@ humancoin chat
   - 响应参数：
     - win
     - points
+
+----
+
+## 匹配算法改进
+
+- 目标：
+  - 尽量提高人类vs人类的概率
+    - 增加排队匹配的人数
+  -
+
+```python
+import math
+
+# 定义函数主动匹配的概率: P(n)
+def P(n, a=0.1, b=0.8, k=0.1):
+    return a + (b - a) * (1 - math.exp(-k * n))
+
+
+
+def match_chat():
+    match_timeout = True
+    if len(queue) > 0:
+        #  主动匹配
+        is_positive_match =  (random.randomint(0, 100) < 50)
+        # 匹配人类
+        if is_positive_match and pop_queue() is not None:
+            match_timeout = False
+            return ok(user_id, room_id)
+
+    # 让用户都在队列排队 5~15s
+    push_queue(user_id)
+    for i in range(random.randomint(5, 15)):
+        sleep(1)
+        # 检查自己是否已经被匹配
+        if check_matched(user_id):
+            # 被匹配了
+            match_timeout = False
+            return match_reponse(user_id, room_id)
+
+    # 匹配AI
+    if match_timeout:
+        return match_ai(user_id, room_id)
+
+```

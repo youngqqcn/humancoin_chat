@@ -9,3 +9,7 @@ zhipuai
 
 pymysql
 jose
+
+
+matplotlib
+numpy
