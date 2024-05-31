@@ -1,4 +1,5 @@
 import json
+import random
 import time
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
@@ -8,10 +9,11 @@ from utils import ResponseModel
 from utils import HcError, create_redis_client, create_response, logger
 
 # 积分奖励
-win_rewards = 100
-lose_rewards = 0
+win_rewards = 10
+lose_rewards = -5
 
 router = APIRouter()
+
 
 class Req(BaseModel):
     user_id: str
@@ -26,8 +28,9 @@ class Resp(BaseModel):
     rewards: float
 
 
-@router.post("", response_model=ResponseModel) #, response_class=JSONResponse)
+@router.post("", response_model=ResponseModel)  # , response_class=JSONResponse)
 async def handler(req: Req):
+    random.seed(int(time.time() * 10**6))
     logger.info("请求参数: %s", req.json())
     rdc = create_redis_client()
     # 检查房间是否存在
@@ -64,6 +67,13 @@ async def handler(req: Req):
         rsp.is_win = False
         rsp.rewards = lose_rewards
 
+    # 系统作弊
+    if rsp.is_win and guess_role == "bot":
+        # 10%的概率，由系统作弊取胜
+        if random.randint(1, 100) < 10:
+            rsp.is_win = False
+            rsp.rewards = lose_rewards
+            logger.info("系统作弊, 房间:{}, 用户:{}".format(req.room_id, req.user_id))
 
     # 更新聊天室的状态为结束
     rdc.hset(
@@ -75,24 +85,23 @@ async def handler(req: Req):
     if rsp.is_win:
         rdc.hincrby("chatwins", req.user_id)
 
-    # 发送消息，增加积分, 输的不得积分
-    if rsp.is_win:
-        rdc.rpush(
-            "chatpointqueue",
-            json.dumps(
-                {
-                    "user_id": req.user_id,
-                    "room_id": req.room_id,
-                    "points": win_rewards,
-                    "timestamp": int(time.time()),
-                }
-            ),
+    # 发送消息，更新积分
+    rdc.rpush(
+        "chatpointqueue",
+        json.dumps(
+            {
+                "user_id": req.user_id,
+                "room_id": req.room_id,
+                "points": rsp.rewards,
+                "timestamp": int(time.time()),
+            }
+        ),
+    )
+    logger.info(
+        "房间:{}, 用户:{}, 更新积分: {},  发送积分消息队列成功 ".format(
+            req.room_id, req.user_id, rsp.rewards
         )
-        logger.info(
-            "房间:{}, 用户:{}, 赢了, 发送积分消息队列成功 ".format(
-                req.room_id, req.user_id
-            )
-        )
+    )
 
     logger.info("响应内容:{}".format(rsp))
     return create_response(data=rsp)

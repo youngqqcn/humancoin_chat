@@ -93,7 +93,7 @@ async def handler(req: Req):
             rdc.hdel("matchroomids", req.user_id)
         # 如果被动匹配超时，匹配AI, X%的概率匹配成功
         if match_timeout:
-            is_match_ai = (random.randint(1, 100) <= 70)
+            is_match_ai = (random.randint(1, 100) <= 80)
             if is_match_ai:
                 logger.info("用户%s, 匹配人类", req.user_id)
                 # 为该用户匹配AI

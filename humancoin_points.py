@@ -9,7 +9,8 @@ from datetime import datetime
 import argparse
 
 
-os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ["PYTHONUNBUFFERED"] = "1"
+
 
 class MySqlConfig:
     def __init__(self, host, port, user, password, db):
@@ -30,7 +31,7 @@ def task(config: MySqlConfig):
                 # print("暂无消息处理")
                 time.sleep(1)
                 continue
-            print('消息:{}'.format(raw_msg))
+            print("消息:{}".format(raw_msg))
 
             with pymysql.connect(
                 host=config.host,
@@ -54,11 +55,9 @@ def task(config: MySqlConfig):
                         continue
 
                     # 更新用户积分余额
-                    operator = "+" if points > 0 else "-"
                     sql_str = f"""
                         UPDATE user_point_wallet
-                        SET balance = IF(balance {operator} {points} >= 0, balance {operator} {points}, 0),
-                        update_time='{time_str}'
+                        SET balance = IF(balance + {points} >= 0, balance + {points}, 0)
                         WHERE user_id='{user_id}';
                         """
                     print(sql_str)
@@ -67,18 +66,23 @@ def task(config: MySqlConfig):
                     cnx.commit()
 
                     # 插入积分记录
-                    id = str(int(time.time() * 10**6)) + str(
-                        random.randint(10000, 99999)
-                    )
-                    biz_id = "humancoin_chat"
-                    trade_type = 3  # '交易类型 1:活动奖励, 2:游戏参与, 3:游戏奖励'
-                    insert_sql_str = f"""
-                    INSERT INTO user_point_record(`id`, `biz_id`, `trade_type`, `user_id`, `amount`, `create_time`)
-                    VALUES('{id}', '{biz_id}', {trade_type}, '{user_id}', {points}, '{time_str}')
-                    """
-                    cursor.execute(insert_sql_str)
-                    cnx.commit()
-                    print('消息处理完成')
+                    if ret == 0:
+                        print('积分余额没改变，不插入积分记录')
+                    if ret > 0:
+                        print("插入积分记录")
+                        id = str(int(time.time() * 10**6)) + str(
+                            random.randint(10000, 99999)
+                        )
+                        biz_id = "humancoin_chat"
+                        trade_type = 3  # '交易类型 1:活动奖励, 2:游戏参与, 3:游戏奖励'
+                        insert_sql_str = f"""
+                        INSERT INTO user_point_record(`id`, `biz_id`, `trade_type`, `user_id`, `amount`, `create_time`)
+                        VALUES('{id}', '{biz_id}', {trade_type}, '{user_id}', {points}, '{time_str}')
+                        """
+                        cursor.execute(insert_sql_str)
+                        cnx.commit()
+
+                    print("消息处理完成")
         except Exception as e:
             print("error: {}".format(e))
 
