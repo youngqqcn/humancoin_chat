@@ -51,6 +51,9 @@ async def handler(req: Req):
     room_users = []
     if not chat_with_human:
         # 为该用户匹配AI
+        for i in range(random.randint(5, 15)):
+            await asyncio.sleep(1)
+            logger.info("sleep for 1 second")
         room_users = [req.user_id, "bot0001"]
         room_id = str(uuid.uuid4())
         rdc.rpush("chatroommembers:" + room_id, *room_users)
@@ -73,7 +76,7 @@ async def handler(req: Req):
             rdc.hset("matchroomids", req.user_id, str(uuid.uuid4()))
             # 开始等待匹配 15s
             match_timeout = True
-            for i in range(0, 15):
+            for i in range(0,   random.randint(5, 15) ):
                 logger.info("用户{}正在排队匹配中...".format(req.user_id))
                 await asyncio.sleep(0.3)
                 other_user_id = rdc.hget("matchhash", req.user_id)
