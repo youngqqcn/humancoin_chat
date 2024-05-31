@@ -83,7 +83,9 @@ async def handler(req: Req):
                 # 匹配成功
                 room_id = rdc.hget("matchroomids", req.user_id)
                 room_users = [req.user_id, other_user_id]
+                rdc.rpush("chatroommembers:" + room_id, *room_users)
                 match_timeout = False
+
         # 匹配超时, 删除待匹配信息
         if match_timeout:
             logger.info("用户{}排队匹配超时".format(req.user_id))
