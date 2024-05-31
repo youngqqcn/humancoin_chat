@@ -21,7 +21,13 @@ def verify_jwt(jwtoken: str, user_id: str) -> bool:
     JWT_ALGORITHM = "HS256"
 
     try:
-        claims = jwt.decode(jwtoken, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        claims = jwt.decode(jwtoken, JWT_SECRET, algorithms=[JWT_ALGORITHM], options={
+            "verify_exp": False,
+            "verify_nbf": False,
+            "verify_iat": False,
+            "verify_aud": False,
+            "verify_iss": False,
+        })
         print(claims)
         return claims["user_id"] == user_id
     except Exception as e:
