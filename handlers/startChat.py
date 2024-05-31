@@ -85,6 +85,7 @@ async def handler(req: Req):
                 room_users = [req.user_id, other_user_id]
                 rdc.rpush("chatroommembers:" + room_id, *room_users)
                 match_timeout = False
+                break
 
         # 匹配超时, 删除待匹配信息
         if match_timeout:

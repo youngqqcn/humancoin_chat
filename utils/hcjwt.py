@@ -5,6 +5,7 @@ import jwt
 
 from .redis import create_redis_client
 from .reponse import HcError, create_response
+import traceback
 
 def create_jwt(user_id: str, exp: int = int(time.time()) + 24*3600):
     JWT_SECRET = "GXFC@Fansland.io@2024"
@@ -32,6 +33,7 @@ def verify_jwt(jwtoken: str, user_id: str) -> bool:
         if claims["user_id"] == user_id:
             return True
         print("用户id不匹配, req.user_id {},  claims: {}".format(user_id, claims['user_id']))
+        return False
     except Exception as e:
         print("error: {}".format(e))
         return False
@@ -60,6 +62,7 @@ async def jwt_middleware(request: Request, call_next):
         return await call_next(request)
     except Exception as e:
         print('jwt_middleware error: {}'.format(e))
+        traceback.print_exc()
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content=create_response(
