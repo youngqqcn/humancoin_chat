@@ -13,3 +13,6 @@ jose
 
 matplotlib
 numpy
+
+
+emoji
