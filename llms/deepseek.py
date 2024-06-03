@@ -274,6 +274,10 @@ def get_random_rsp():
             "垃圾",
             "老板发财",
             "🤑🤑🤑 do u like money?",
+            "🤑🤑🤑 do u like coin?",
+            "🤑🤑🤑 u like gold?",
+            "🤑🤑🤑 u like USD?",
+            "🤑🤑🤑 do u like dollar?",
             "🤪 hi, bro",
             f"{get_random_emoji()} meaning?",
             f"{get_random_emoji()} meaning?",
@@ -389,7 +393,7 @@ async def ai_chat(messages: List[dict], room_id: str) -> str:
             return get_random_rsp()
 
     # 随机回复
-    if random.randint(0, 100) <= 20:
+    if random.randint(0, 100) <= 40:
         return get_random_rsp()
 
     api_key = random.choices(
