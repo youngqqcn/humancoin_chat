@@ -16,6 +16,12 @@ from .prompts.prompt4 import system_prompt4
 from .prompts.prompt6 import system_prompt6
 
 import emoji
+import string
+
+def generate_random_string(length):
+    letters = string.ascii_letters  # 包含所有字母的字符串
+    random_string = ''.join(random.choice(letters) for _ in range(length))
+    return random_string
 
 def get_random_emoji():
     # 获取所有表情符号及其描述信息
@@ -292,6 +298,34 @@ def get_random_rsp():
             "{} - {}=?".format(random.randint(1, 199), random.randint(10, 99)),
             "asshole",
             "dickhead",
+            f"{generate_random_string(1)}",
+            f"{generate_random_string(2)}",
+            f"{generate_random_string(2)}",
+            f"{generate_random_string(2)}",
+            f"{generate_random_string(2)}",
+            f"{generate_random_string(3)}",
+            f"{generate_random_string(3)}",
+            f"{generate_random_string(3)}",
+            f"{generate_random_string(3)}",
+            f"{generate_random_string(3)}",
+            f"{generate_random_string(3)}",
+            f"{generate_random_string(3)}",
+            f"{generate_random_string(3)}",
+            f"{generate_random_string(4)}",
+            f"{generate_random_string(4)}",
+            f"{generate_random_string(4)}",
+            f"{generate_random_string(4)}",
+            f"{generate_random_string(5)}",
+            f"{generate_random_string(5)}",
+            f"{generate_random_string(5)}",
+            f"{generate_random_string(5)}",
+            f"{generate_random_string(6)}",
+            f"{generate_random_string(7)}",
+            f"{generate_random_string(7)}",
+            f"{generate_random_string(7)}",
+            f"{generate_random_string(8)}",
+            f"{generate_random_string(8)}",
+            f"{generate_random_string(8)}",
         ],
         k=1,
     )[0]
