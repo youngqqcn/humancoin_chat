@@ -23,7 +23,7 @@ def get_random_emoji():
     # 将表情符号的键（键即为表情符号本身）转换为列表
     emojis_list = list(all_emojis.keys())
     # 随机选择一个表情符号
-    random_emoji = random.choice(emojis_list)
+    random_emoji = random.choices(emojis_list)[0]
     return random_emoji
 
 
