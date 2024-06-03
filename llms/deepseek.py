@@ -361,6 +361,7 @@ async def ai_chat(messages: List[dict], room_id: str) -> str:
     g_messages.extend(messages)
 
     try:
+        print('===请求LLM的api')
         completion = g_client.chat.completions.create(
             model="deepseek-chat",
             messages=g_messages,
