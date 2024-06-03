@@ -36,6 +36,7 @@ async def chat_handler(tid: int, room_id: str):
         # 查询消息记录
         msgs = rdc.zrange("chatchannel:" + room_id, 0, -1, desc=False)
         history_msgs = []
+        print('channel中的msgs: {}'.format(msgs))
         if msgs is None or len(msgs) == 0:
             #  AI说第一句话, 让AI先问一个问题
             history_msgs.append(
