@@ -19,9 +19,6 @@ def get_random_first_question():
             "ask me a good question which can proof you are a human is instead of a bot",
             "ask me a short question, no more the 3 words",
             "ask me a simple random short question",
-            "return a radom english character",
-            "return a radom english words that is very usually used in daily life",
-            "ask me a question about my personal information, such as family , work, salary, personal",
         ],
         k=1
     )[0]
