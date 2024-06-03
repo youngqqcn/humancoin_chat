@@ -290,6 +290,8 @@ def get_random_rsp():
             "{} * {}=?".format(random.randint(1, 199), random.randint(10, 99)),
             "{} * {}=?".format(random.randint(1, 199), random.randint(10, 99)),
             "{} - {}=?".format(random.randint(1, 199), random.randint(10, 99)),
+            "asshole",
+            "dickhead",
         ],
         k=1,
     )[0]
@@ -387,6 +389,9 @@ async def ai_chat(messages: List[dict], room_id: str) -> str:
             or "ฉัน" in rsp_msg
         ):
             rsp_msg = get_random_rsp()
+
+        if rsp_msg.endswith('.'):
+            rsp_msg = rsp_msg[:-1]
         return rsp_msg
     except Exception as e:
         print("error: {}".format(e))
