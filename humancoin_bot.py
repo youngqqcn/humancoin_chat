@@ -53,6 +53,13 @@ async def chat_handler(tid: int, room_id: str):
                 role = "assistant" if str(msg["user_id"]).startswith("bot") else "user"
                 history_msgs.append({"role": role, "content": msg["content"]})
 
+        # 不让聊太多
+        if len(msgs) >= 3:
+            # 选择沉默
+            if random.randint(0, 100) <= 70:
+                print("选择沉默")
+                await asyncio.sleep(random.randint(25, 31))
+
         rsp_text = await ai_chat(messages=history_msgs, room_id=room_id)
         print("AI: {}".format(rsp_text))
 

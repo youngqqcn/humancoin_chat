@@ -443,7 +443,6 @@ async def ai_chat(messages: List[dict], room_id: str) -> str:
     if random.randint(0, 100) <= 40:
         return get_random_rsp()
 
-
     api_key = random.choices(
         [
             "sk-654b60ab100f44b885c5d3c004aec469",  # yqq
