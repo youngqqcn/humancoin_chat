@@ -433,6 +433,7 @@ def format_date(dt):
 async def ai_chat(messages: List[dict], room_id: str) -> str:
     random.seed(int(time.time() * 10**6))
 
+
     # AI首次对话
     if len(messages) == 0:
         if random.randint(0, 100) <= 85:
@@ -441,6 +442,7 @@ async def ai_chat(messages: List[dict], room_id: str) -> str:
     # 随机回复
     if random.randint(0, 100) <= 40:
         return get_random_rsp()
+
 
     api_key = random.choices(
         [

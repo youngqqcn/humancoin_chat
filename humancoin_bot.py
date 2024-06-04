@@ -10,7 +10,7 @@ import traceback
 from llms.deepseek import ai_chat
 from utils.redis import create_redis_client
 
-os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ["PYTHONUNBUFFERED"] = "1"
 
 
 def get_random_first_question():
@@ -20,27 +20,31 @@ def get_random_first_question():
             "ask me a short question, no more the 3 words",
             "ask me a simple random short question",
         ],
-        k=1
+        k=1,
     )[0]
+
 
 #
 async def chat_handler(tid: int, room_id: str):
     try:
         random.seed(int(time.time() * 10**6))
-        await asyncio.sleep( random.randint( 5, 10 ))
+        await asyncio.sleep(random.randint(5, 10))
+
+        # 选择沉默
+        if random.randint(0, 100) <= 10:
+            print("选择沉默")
+            await asyncio.sleep(random.randint(25, 31))
+
         rdc = create_redis_client()
 
         # 查询消息记录
         msgs = rdc.zrange("chatchannel:" + room_id, 0, -1, desc=False)
         history_msgs = []
-        print('channel中的msgs: {}'.format(msgs))
+        print("channel中的msgs: {}".format(msgs))
         if msgs is None or len(msgs) == 0:
             #  AI说第一句话, 让AI先问一个问题
             history_msgs.append(
-                {
-                    "role": "user",
-                    "content": get_random_first_question()
-                }
+                {"role": "user", "content": get_random_first_question()}
             )
             pass
         else:
