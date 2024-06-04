@@ -56,7 +56,7 @@ async def chat_handler(tid: int, room_id: str):
         # 不让聊太多
         if len(msgs) >= 3:
             # 选择沉默
-            if random.randint(0, 100) <= 70:
+            if random.randint(0, 100) <= 60:
                 print("选择沉默")
                 await asyncio.sleep(random.randint(25, 31))
 
