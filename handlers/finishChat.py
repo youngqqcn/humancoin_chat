@@ -9,8 +9,8 @@ from utils import ResponseModel
 from utils import HcError, create_redis_client, create_response, logger
 
 # 积分奖励
-win_rewards = 10
-lose_rewards = -5
+win_rewards = 100
+lose_rewards = -50
 
 router = APIRouter()
 
