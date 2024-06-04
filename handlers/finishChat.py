@@ -10,7 +10,7 @@ from utils import HcError, create_redis_client, create_response, logger
 
 # 积分奖励
 win_rewards = 100
-lose_rewards = -50
+lose_rewards = 0
 
 router = APIRouter()
 
